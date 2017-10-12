@@ -9,13 +9,13 @@ RAVEN_CONFIG = {
   'dsn': os.environ.get('SENTRY_DSN', ''),
 }
 
-INSTALLED_APPS += (
+INSTALLED_APPS += [
   'raven.contrib.django.raven_compat',
-)
+]
 
-MIDDLEWARE = (
+MIDDLEWARE = [
   'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
-) + MIDDLEWARE
+] + MIDDLEWARE
 
 LOGGING = {
   'version': 1,
