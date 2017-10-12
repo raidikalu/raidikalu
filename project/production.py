@@ -3,10 +3,10 @@ import os
 from project.settings import *
 
 
-ALLOWED_HOSTS = os.environ.GET('DJANGO_ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
 
 RAVEN_CONFIG = {
-  'dsn': os.environ.GET('SENTRY_DSN', ''),
+  'dsn': os.environ.get('SENTRY_DSN', ''),
 }
 
 INSTALLED_APPS += (
