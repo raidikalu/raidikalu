@@ -13,6 +13,10 @@ INSTALLED_APPS += (
   'raven.contrib.django.raven_compat',
 )
 
+MIDDLEWARE = (
+  'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
+) + MIDDLEWARE
+
 LOGGING = {
   'version': 1,
   'disable_existing_loggers': True,
