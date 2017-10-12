@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 django = "==1.11.6"
 "dj-database-url" = "==0.4.2"
+honcho = "==1.0.1"
 raven = "==6.2.1"
 whitenoise = "==3.3.1"
 

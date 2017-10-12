@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d02e8fba30932dc53a09673798c73ccefaaaa4cd24114ed47b9883ac0f9df9ec"
+            "sha256": "f326bd7439c3631279d6435f31c8ab4d3506f956469ae41239ab57b22ef76352"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -29,6 +29,14 @@
         ]
     },
     "default": {
+        "colorama": {
+            "hashes": [
+                "sha256:463f8483208e921368c9f306094eb6f725c6ca42b0f97e313cb5d5512459feda",
+                "sha256:48eb22f4f8461b1df5734a074b57042430fb06e1d61bd1e11b078c0fe6d7a1f1"
+            ],
+            "markers": "sys_platform == 'win32'",
+            "version": "==0.3.9"
+        },
         "dj-database-url": {
             "hashes": [
                 "sha256:e16d94c382ea0564c48038fa7fe8d9c890ef1ab1a8ec4cb48e732c124b9482fd",
@@ -42,6 +50,13 @@
                 "sha256:c3b42ca1efa1c0a129a9e863134cc3fe705c651dea3a04a7998019e522af0c60"
             ],
             "version": "==1.11.6"
+        },
+        "honcho": {
+            "hashes": [
+                "sha256:af5806bf13e3b20acdcb9ff8c0beb91eee6fe07393c3448dfad89667e6ac7576",
+                "sha256:c189402ad2e337777283c6a12d0f4f61dc6dd20c254c9a3a4af5087fc66cea6e"
+            ],
+            "version": "==1.0.1"
         },
         "pytz": {
             "hashes": [
