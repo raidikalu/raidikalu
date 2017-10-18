@@ -6,7 +6,7 @@ from django.utils.timezone import now
 
 class TimestampedModel(models.Model):
   created_at = models.DateTimeField(editable=False, default=now)
-  updated_at = models.DateTimeField()
+  updated_at = models.DateTimeField(editable=False)
 
   class Meta:
     abstract = True
@@ -16,10 +16,17 @@ class TimestampedModel(models.Model):
     return super(TimestampedModel, self).save(*args, **kwargs)
 
 
+class DataSource(models.Model):
+  name = models.CharField(max_length=255)
+  api_key = models.CharField(max_length=2048)
+
+  def __str__(self):
+    return self.name
+
+
 class Gym(TimestampedModel):
   name = models.CharField(max_length=2048)
   pogo_id = models.CharField(max_length=255, blank=True)
-  external_id = models.CharField(max_length=255, blank=True)
   latitude = models.DecimalField(max_digits=9, decimal_places=6)
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
@@ -56,14 +63,6 @@ class Raid(TimestampedModel):
     return '%s // %s' % (self.gym.name, self.pokemon)
 
 
-class DataSource(models.Model):
-  name = models.CharField(max_length=255)
-  api_key = models.CharField(max_length=2048)
-
-  def __str__(self):
-    return self.name
-
-
 class RaidVote(TimestampedModel):
   FIELD_TIER = 'tier'
   FIELD_POKEMON = 'pokemon'
@@ -71,11 +70,11 @@ class RaidVote(TimestampedModel):
   FIELD_CHARGE_MOVE = 'charge_move'
   FIELD_START_AT = 'start_at'
   FIELD_CHOICES = (
-    (FIELD_TIER, 'Tier'),
+    (FIELD_TIER, 'Taso'),
     (FIELD_POKEMON, 'Pokémon'),
     (FIELD_FAST_MOVE, 'Fast move'),
     (FIELD_CHARGE_MOVE, 'Charge move'),
-    (FIELD_START_AT, 'Starting time'),
+    (FIELD_START_AT, 'Alkamisaika'),
   )
   raid = models.ForeignKey(Raid, related_name='votes', on_delete=models.CASCADE)
   submitter = models.CharField(max_length=255)
