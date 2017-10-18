@@ -22,7 +22,7 @@ LOGGING = {
   'disable_existing_loggers': True,
   'root': {
     'level': 'WARNING',
-    'handlers': ['sentry', 'console' ],
+    'handlers': ['sentry', 'console'],
   },
   'formatters': {
     'verbose': {
@@ -44,7 +44,7 @@ LOGGING = {
   'loggers': {
     'django': {
       'level': 'ERROR',
-      'handlers': ['console', ],
+      'handlers': ['console'],
       'formatter': 'verbose',
     },
     'raven': {
@@ -59,12 +59,12 @@ LOGGING = {
     },
     'raidikalu': {
       'level': 'DEBUG',
-      'handlers': ['console', 'sentry' ],
+      'handlers': ['console', 'sentry'],
       'formatter': 'verbose',
     },
     '': {
       'level': 'WARNING',
-      'handlers': ['console', 'sentry' ],
+      'handlers': ['console', 'sentry'],
       'formatter': 'verbose',
     },
   },
