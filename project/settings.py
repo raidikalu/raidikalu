@@ -122,3 +122,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '..', 'staticroot')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+#
+# Raidikalu
+#
+
+RAIDIKALU_BASE_POKEMON_IMAGE_URL = os.environ.get('BASE_POKEMON_IMAGE_URL', '/static/img/pokemon/%s.png')

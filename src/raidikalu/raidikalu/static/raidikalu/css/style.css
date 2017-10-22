@@ -1,0 +1,200 @@
+html, body {
+  font-family: Verdana, sans-serif;
+  color: #333;
+  background: #f9f9f9;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+body {
+  padding: 10px;
+}
+.header {
+  margin: 0;
+}
+.header-nickname {
+  text-align: center;
+  font-size: 18px;
+  margin: 0 0 15px 0;
+}
+.full-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 5px;
+  background: #aaa;
+  text-align: center;
+  text-decoration: none;
+  font: inherit;
+  border: 0;
+  border-radius: 3px;
+  color: #fff;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.forget-me {
+  margin: 60px 0 20px 0;
+}
+.pfc,
+.moveset-checkbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.pfc[data-tier="1"]:checked ~ .raid[data-tier="1"][data-pokemon="unknown"] { display: block; }
+.pfc[data-tier="2"]:checked ~ .raid[data-tier="2"][data-pokemon="unknown"] { display: block; }
+.pfc[data-tier="3"]:checked ~ .raid[data-tier="3"][data-pokemon="unknown"] { display: block; }
+.pfc[data-tier="4"]:checked ~ .raid[data-tier="4"][data-pokemon="unknown"] { display: block; }
+.pfc[data-tier="5"]:checked ~ .raid[data-tier="5"][data-pokemon="unknown"] { display: block; }
+.raid[data-tier=""] { display: block; }
+.pfl {
+  display: inline-block;
+  margin: 0 0 5px 0;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #fff;
+  background: #bbb;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+.pfl:after {
+  content: ": ei";
+  display: inline-block;
+  width: 25px;
+}
+.pfc:checked + .pfl:after {
+  content: ": joo";
+}
+.pfc:checked + .pfl.pft5 {
+  background-color: #7E57C2;
+}
+.pfc:checked + .pfl.pft4 {
+  background-color: #EF5350;
+}
+.pfc:checked + .pfl.pft3 {
+  background-color: #FFA726;
+}
+.pfc:checked + .pfl.pft2 {
+  background-color: #9CCC65;
+}
+.pfc:checked + .pfl.pft1 {
+  background-color: #42A5F5;
+}
+.raid {
+  display: none;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 3px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.3);
+  background: #fff;
+  min-height: 105px;
+  padding: 10px 50px 10px 80px;
+  margin-bottom: 10px;
+}
+.raid-icon {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-shadow: 0 0 1px #000;
+}
+.raid-pokemon-icon {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  top: 12px;
+  left: 24px;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+.raid-tier {
+  position: absolute;
+  top: 65px;
+  left: 15px;
+  width: 50px;
+  text-align: center;
+  font-size: 12px;
+}
+.raid-pokemon {
+  position: absolute;
+  top: 80px;
+  left: 0px;
+  width: 80px;
+  text-align: center;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+.raid-moveset {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: auto;
+  height: auto;
+  white-space: nowrap;
+  color: #ddd;
+}
+.moveset-checkbox:checked + .raid-moveset {
+  color: #333;
+}
+.raid-name {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 5px 3px #fff;
+  background: #fff;
+}
+.raid-time {
+  position: relative;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+  z-index: 1;
+  box-shadow: 0 0 5px 3px #fff;
+  background: #fff;
+}
+.raid-map-link,
+.raid-directions-link {
+  position: absolute;
+  right: 8px;
+  color: #666;
+  text-decoration: none;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+  z-index: 1;
+}
+.raid-map-link:before,
+.raid-directions-link:before {
+  content:"";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  width: auto;
+  height: auto;
+  background: #eee;
+  border-radius: 50%;
+  z-index: -1;
+}
+.raid-map-link {
+  top: 8px;
+}
+.raid-directions-link {
+  top: 54px;
+}
