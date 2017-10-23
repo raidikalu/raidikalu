@@ -3,6 +3,7 @@ import json
 import re
 from django.http import HttpResponse
 from django.views import View
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
@@ -16,11 +17,10 @@ class RaidListView(TemplateView):
     return Raid.objects.all().select_related('gym').order_by('start_at')
 
   def get_context_data(self, **kwargs):
+    Raid.objects.filter(end_at__lt=timezone.now()).delete()
     context = super(RaidListView, self).get_context_data(**kwargs)
-
     context['editable_settings'] = EditableSettings.get_current_settings()
     context['raids'] = self.get_queryset()
-
     return context
 
 
