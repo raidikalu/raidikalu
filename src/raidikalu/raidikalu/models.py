@@ -43,7 +43,7 @@ class EditableSettings(models.Model):
   @classmethod
   def load_current_settings(cls):
     try:
-      return cls.objects.filter(expires_at__lt=timezone.now()).earliest('expires_at')
+      return cls.objects.filter(expires_at__gt=timezone.now()).earliest('expires_at')
     except cls.DoesNotExist:
       pass
     try:
