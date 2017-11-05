@@ -1,15 +1,19 @@
-{% load static %}
+{% load static %}{% spaceless %}
 <!doctype html>
 <html lang="fi"{% block html_tag_extra %}{% endblock %}>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
     <title>{% block title %}Raidikalu &ndash; listaa raideja, jos listaa{% endblock %}</title>
     <link href="{% static 'raidikalu/css/style.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     {% block head_extra %}{% endblock %}
   </head>
   <body>
-    {% block body %}{% endblock %}
+    <div class="main-container">
+      {% block main_content %}{% endblock %}
+    </div>
   </body>
 </html>
+{% endspaceless %}

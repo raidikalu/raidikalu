@@ -125,6 +125,14 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 #
+# Sessions
+#
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_AGE = 15769000 # about 6 months
+
+
+#
 # Raidikalu
 #
 

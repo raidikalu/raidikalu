@@ -1,4 +1,4 @@
-{% extends 'raidikalu/base.html' %}
+{% extends "raidikalu/base.html" %}
 
 {% block html_tag_extra %} class="no-js"{% endblock %}
 
@@ -20,7 +20,18 @@
 {% endblock %}
 
 
-{% block body %}
+{% block main_content %}
+    <div class="new-raid-link-container">
+      <a href="{% url 'raidikalu.raid_create' %}" title="Ilmoita raidi" class="new-raid-link">
+        <span class="new-raid-link-label">&lt;&mdash; Ilmoita raidi</span>
+      </a>
+    </div>
+    <iframe src="" class="trainer-nickname-target-frame" name="trainer-nickname-target"></iframe>
+    <form action="" method="post" target="trainer-nickname-target">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="set-nickname" />
+      <input class="form-control trainer-nickname-input" name="nickname" value="{{ request.session.nickname }}" placeholder="Nimimerkki, jos haluat erottua" onchange="this.form.submit()" />
+    </form>
     <p>Nää monnit kiinnostais</p>
     {% for raid_type in editable_settings.raid_types %}
     <input id="pf{{ forloop.counter }}" class="pfc" data-tier="{{ raid_type.tier }}" type="checkbox" checked value="{{ raid_type.pokemon }}" /><label for="pf{{ forloop.counter }}" class="pft{{ raid_type.tier }} pfl">{{ raid_type.pokemon }}</label>{% endfor %}
@@ -43,7 +54,7 @@
       <label class="raid-pokemon">
         {{ raid.pokemon_name|default:"? ? ?" }}
         {% if raid.fast_move %}
-        <input class="moveset-checkbox" type="checkbox" />
+        <input class="moveset-checkbox styled-checkable-input" type="checkbox" />
         <div class="raid-moveset">
           {{ raid.fast_move|default:"- - -" }}
           /

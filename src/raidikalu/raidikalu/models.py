@@ -1,11 +1,15 @@
 
 import json
+import logging
 from datetime import timedelta, datetime
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 from raidikalu import settings
 from raidikalu.pokedex import get_pokemon_number_by_name
+
+
+LOG = logging.getLogger(__name__)
 
 
 class TimestampedModel(models.Model):
@@ -28,7 +32,11 @@ class EditableSettings(models.Model):
   def __init__(self, *args, **kwargs):
     super(EditableSettings, self).__init__(*args, **kwargs)
     try:
-      setattr(self, 'raid_types', json.loads(self.raid_types_json))
+      raid_types = json.loads(self.raid_types_json)
+      for raid_type in raid_types:
+        raid_type['pokemon_number'] = get_pokemon_number_by_name(raid_type['pokemon'])
+        raid_type['pokemon_image'] = settings.BASE_POKEMON_IMAGE_URL.format(raid_type['pokemon_number'])
+      setattr(self, 'raid_types', raid_types)
     except (TypeError, json.decoder.JSONDecodeError) as e:
       setattr(self, 'raid_types', [])
 
@@ -49,10 +57,18 @@ class EditableSettings(models.Model):
 
   @classmethod
   def get_current_settings(cls):
-    if cls._current_settings:
+    if cls._current_settings and cls._current_settings.expires_at > timezone.now():
       return cls._current_settings
     cls._current_settings = cls.load_current_settings()
     return cls._current_settings
+
+  @classmethod
+  def get_tier_for_pokemon(cls, pokemon_name):
+    editable_settings = EditableSettings.get_current_settings()
+    for raid_type in editable_settings.raid_types:
+      if raid_type['pokemon'] == pokemon_name:
+        return raid_type['tier']
+    return None
 
   def __str__(self):
     return 'Settings until %s' % str(self.expires_at)
@@ -88,6 +104,7 @@ class GymNickname(TimestampedModel):
 class Raid(TimestampedModel):
   RAID_EGG_DURATION = timedelta(hours=1)
   RAID_BATTLE_DURATION = timedelta(hours=1)
+  RAID_DURATION = RAID_EGG_DURATION + RAID_BATTLE_DURATION
 
   gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE)
   tier = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -99,8 +116,11 @@ class Raid(TimestampedModel):
   end_at = models.DateTimeField(null=True, blank=True)
 
   def save(self, *args, **kwargs):
+    if self.pokemon_name and not self.tier:
+      self.tier = EditableSettings.get_tier_for_pokemon(self.pokemon_name)
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
     self.pokemon_number = get_pokemon_number_by_name(self.pokemon_name)
+    Raid.objects.filter(Q(end_at__lt=timezone.now()) | Q(created_at__lt=timezone.now() - Raid.RAID_DURATION)).delete()
     return super(Raid, self).save(*args, **kwargs)
 
   @property
@@ -177,8 +197,11 @@ class RaidVote(TimestampedModel):
       return RaidVote.objects.filter(raid=raid, vote_field=vote_field, data_source__isnull=False).latest('created_at').vote_value
     except RaidVote.DoesNotExist:
       qs = RaidVote.objects.filter(raid=raid, vote_field=vote_field)
-      qs = qs.values('vote_value').annotate(count=Count('vote_value')).order_by('-count')
-      return qs.first()
+      qs = qs.values('vote_value').annotate(count=Count('vote_value')).order_by('-count', '-created_at')
+      top_vote = qs.first()
+      if top_vote:
+        return top_vote['vote_value']
+    return None
 
   def __str__(self):
     return '%s // %s // %s' % (self.raid, self.vote_field, self.vote_value)
