@@ -4,7 +4,7 @@ import logging
 import re
 from calendar import timegm
 from datetime import timedelta
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -121,6 +121,28 @@ class RaidCreateView(TemplateView):
     context['editable_settings'] = EditableSettings.get_current_settings()
     context['gyms'] = Gym.objects.all().order_by('name').prefetch_related('nicknames')
     return context
+
+
+class RaidJsonExportView(View):
+  def get(self, request, *args, **kwargs):
+    data_source_api_key = self.kwargs.get('api_key')
+    data_source = DataSource.objects.get(api_key=data_source_api_key)
+    already_received_raid_ids = RaidVote.objects.filter(data_source=data_source, vote_field=RaidVote.FIELD_POKEMON).values_list('raid_id', flat=True).distinct()
+    raids = Raid.objects.exclude(id__in=already_received_raid_ids).select_related('gym')
+    raids_json = []
+    for raid in raids:
+      raids_json.append({
+        'id': raid.pk,
+        'tier': raid.tier,
+        'gym_id': raid.gym.pogo_id,
+        'pokemon': raid.pokemon_name,
+        'fast_move': raid.fast_move,
+        'charge_move': raid.charge_move,
+        'start_time': timegm(raid.start_at.utctimetuple()) if raid.start_at else None,
+        'end_time': timegm(raid.end_at.utctimetuple()) if raid.end_at else None,
+        'created_at': timegm(raid.created_at.utctimetuple()) if raid.created_at else None,
+      })
+    return JsonResponse(raids_json, safe=False, json_dumps_params={'separators': (',', ':')})
 
 
 @method_decorator(csrf_exempt, name='dispatch')
