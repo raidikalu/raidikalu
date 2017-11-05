@@ -70,6 +70,10 @@ class EditableSettings(models.Model):
         return raid_type['tier']
     return None
 
+  def save(self, *args, **kwargs):
+    EditableSettings._current_settings = None
+    return super(EditableSettings, self).save(*args, **kwargs)
+
   def __str__(self):
     return 'Settings until %s' % str(self.expires_at)
 
