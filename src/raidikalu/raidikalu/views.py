@@ -135,6 +135,8 @@ class RaidJsonExportView(View):
         'id': raid.pk,
         'tier': raid.tier,
         'gym_id': raid.gym.pogo_id,
+        'latitude': raid.gym.latitude,
+        'longitude': raid.gym.longitude,
         'pokemon': raid.pokemon_name,
         'fast_move': raid.fast_move,
         'charge_move': raid.charge_move,
