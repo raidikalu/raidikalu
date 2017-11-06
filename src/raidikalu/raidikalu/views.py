@@ -89,6 +89,8 @@ class RaidCreateView(TemplateView):
     if raid_time_value_type == 'absolute':
       try:
         hours, minutes = self.ABSOLUTE_TIME_REGEX.match(raid_time_str).groups()
+        hours = int(hours)
+        minutes = int(minutes)
         raid_time = timezone.now()
         raid_time = raid_time.replace(hour=hours, minute=minutes)
       except AttributeError:
