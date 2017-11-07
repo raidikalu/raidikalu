@@ -135,31 +135,31 @@
         }
 
         function handlePokemonFilterChange(event) {
+          persistFilter(event.target);
+        }
+
+        function persistFilter(checkbox) {
 
           var pokemon;
           var indexOfPokemon;
 
-          if ( ! event.target.classList.contains('pfc')) {
+          if ( ! checkbox.classList.contains('pfc')) {
             return;
           }
 
-          pokemon = event.target.value;
+          pokemon = checkbox.value;
           indexOfPokemon = selectedPokemon.indexOf(pokemon);
 
-          if (event.target.checked && indexOfPokemon === -1) {
+          if (checkbox.checked && indexOfPokemon === -1) {
             selectedPokemon.push(pokemon);
             localStorage.setItem('selected-pokemon-v3', JSON.stringify(selectedPokemon));
           }
-          if ( ! event.target.checked && indexOfPokemon !== -1) {
+          if ( ! checkbox.checked && indexOfPokemon !== -1) {
             selectedPokemon.splice(indexOfPokemon, 1);
             localStorage.setItem('selected-pokemon-v3', JSON.stringify(selectedPokemon));
           }
 
         }
-
-      })();
-
-      (function toggleAllFilters() {
 
         var allButton = document.querySelector('.js-filter-all');
         var noneButton = document.querySelector('.js-filter-none');
@@ -168,12 +168,14 @@
         allButton.addEventListener('click', function setFilterAll() {
           filterCheckboxes.forEach(function check(checkbox) {
             checkbox.checked = true;
+            persistFilter(checkbox);
           });
         });
 
         noneButton.addEventListener('click', function setFilterNone() {
           filterCheckboxes.forEach(function uncheck(checkbox) {
             checkbox.checked = false;
+            persistFilter(checkbox);
           });
         });
 
