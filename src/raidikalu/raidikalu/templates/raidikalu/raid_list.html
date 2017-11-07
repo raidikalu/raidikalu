@@ -46,33 +46,27 @@
     <p>Tulossa</p>
     {% endif %}
     {% for raid in grouped_raids.list %}
-    <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier }}">
+    <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}">
       <div class="raid-icon" style="background-image: url({{ raid.gym.image_url }});"></div>
       <div class="raid-pokemon-icon" style="background-image: url({{ raid.get_pokemon_image_url }});"></div>
-      <div class="raid-tier">
-        {% if raid.tier == 1 %}&#9733;{% elif raid.tier == 2 %}&#9733;&#9733;{% elif raid.tier == 3 %}&#9733;&#9733;&#9733;{% elif raid.tier == 4 %}&#9733;&#9733;&#9733;&#9733;{% elif raid.tier == 5 %}&#9733;&#9733;&#9733;&#9733;&#9733;{% else %}&ndash;{% endif %}
-      </div>
+      <div class="raid-tier">{% if raid.tier == 1 %}&#9733;{% elif raid.tier == 2 %}&#9733;&#9733;{% elif raid.tier == 3 %}&#9733;&#9733;&#9733;{% elif raid.tier == 4 %}&#9733;&#9733;&#9733;&#9733;{% elif raid.tier == 5 %}&#9733;&#9733;&#9733;&#9733;&#9733;{% else %}&ndash;{% endif %}</div>
       <label class="raid-pokemon">
-        {{ raid.pokemon_name|default:"? ? ?" }}
+        <span>{{ raid.pokemon_name|default:"? ? ?" }}</span>
         {% if raid.fast_move %}
         <input class="moveset-checkbox styled-checkable-input" type="checkbox" />
-        <div class="raid-moveset">
-          {{ raid.fast_move|default:"- - -" }}
-          /
-          {{ raid.charge_move|default:"- - -" }}
-        </div>
+        <div class="raid-moveset">{{ raid.fast_move|default:"- - -" }} / {{ raid.charge_move|default:"- - -" }}</div>
         {% endif %}
       </label>
       <div class="raid-time">
         {% if raid.has_started %}
-        Päättyy <strong>{{ raid.end_at|date:"H:i" }}</strong>, jäljellä <strong class="raid-time-left" data-time="{{ raid.end_at.timestamp }}">{{ raid.get_time_left_until_end_display }}</strong>
+        <span>Päättyy <strong>{{ raid.end_at|date:"H:i" }}</strong>, jäljellä <strong class="raid-time-left" data-time="{{ raid.end_at.timestamp }}">{{ raid.get_time_left_until_end_display }}</strong></span>
+        {% elif raid.start_at %}
+        <span>Alkaa <strong>{{ raid.start_at|date:"H:i" }}</strong>, alkuun <strong class="raid-time-left" data-time="{{ raid.start_at.timestamp }}">{{ raid.get_time_left_until_start_display }}</strong></span>
         {% else %}
-        Alkaa <strong>{{ raid.start_at|date:"H:i" }}</strong>, alkuun <strong class="raid-time-left" data-time="{{ raid.start_at.timestamp }}">{{ raid.get_time_left_until_start_display }}</strong>
+        <span>Kellonaika puuttuu</span>
         {% endif %}
       </div>
-      <div class="raid-name">
-        {{ raid.gym.name }}
-      </div>
+      <div class="raid-name">{{ raid.gym.name }}</div>
       <a class="raid-map-link" href="https://gymhuntr.com/#{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-map-marker"></i></a>
       <a class="raid-directions-link" href="https://www.google.com/maps/dir/Current+Location/{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-car"></i></a>
     </div>

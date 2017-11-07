@@ -28,7 +28,7 @@ class RaidListView(TemplateView):
     return self.get(request, *args, **kwargs)
 
   def get_queryset(self):
-    return Raid.objects.filter(end_at__gte=timezone.now()).select_related('gym').order_by('start_at')
+    return Raid.objects.exclude(end_at__lte=timezone.now()).select_related('gym').order_by('start_at')
 
   def get_context_data(self, **kwargs):
     context = super(RaidListView, self).get_context_data(**kwargs)

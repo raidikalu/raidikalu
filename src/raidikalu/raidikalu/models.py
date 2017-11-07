@@ -129,7 +129,9 @@ class Raid(TimestampedModel):
 
   @property
   def has_started(self):
-    return timezone.now() >= self.start_at
+    if self.start_at:
+      return timezone.now() >= self.start_at
+    return False
 
   def get_pokemon_image_url(self):
     return settings.BASE_POKEMON_IMAGE_URL.format(self.pokemon_number)
