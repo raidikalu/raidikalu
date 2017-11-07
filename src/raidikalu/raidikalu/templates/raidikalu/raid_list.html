@@ -36,6 +36,10 @@
     <p>Nää monnit kiinnostais</p>
     {% for raid_type in editable_settings.raid_types %}
     <input id="pf{{ forloop.counter }}" class="pfc" data-tier="{{ raid_type.tier }}" type="checkbox" checked value="{{ raid_type.pokemon }}" /><label for="pf{{ forloop.counter }}" class="pft{{ raid_type.tier }} pfl">{{ raid_type.pokemon }}</label>{% endfor %}
+    <div class="filter-buttons">
+      <button class="btn js-filter-all">Kaikki käy</button>
+      <button class="btn js-filter-none">Ei mikään</button>
+    </div>
 
     {% regroup raids|dictsortreversed:"has_started" by has_started as raids_by_status %}
 
@@ -73,9 +77,8 @@
     {% endfor %}
     {% endfor %}
 
-
     <script>
-      (function () {
+      (function timers() {
 
         var timerElements = Array.prototype.slice.call(document.querySelectorAll('[data-time]'));
 
@@ -107,9 +110,8 @@
         }
 
       })();
-    </script>
-    <script>
-      (function () {
+
+      (function persistPokemonFilters() {
 
         if ( ! window.localStorage) {
           return;
@@ -154,6 +156,26 @@
           }
 
         }
+
+      })();
+
+      (function toggleAllFilters() {
+
+        var allButton = document.querySelector('.js-filter-all');
+        var noneButton = document.querySelector('.js-filter-none');
+        var filterCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.pfc'));
+
+        allButton.addEventListener('click', function setFilterAll() {
+          filterCheckboxes.forEach(function check(checkbox) {
+            checkbox.checked = true;
+          });
+        });
+
+        noneButton.addEventListener('click', function setFilterNone() {
+          filterCheckboxes.forEach(function uncheck(checkbox) {
+            checkbox.checked = false;
+          });
+        });
 
       })();
     </script>

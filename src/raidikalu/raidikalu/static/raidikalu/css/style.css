@@ -154,6 +154,9 @@ hr {
 .form-control::-moz-placeholder { color: #aaa; /* Firefox 19+ */ }
 .form-control:-moz-placeholder { color: #aaa; /* Firefox 18- */ }
 .form-control:-ms-input-placeholder { color: #aaa; /* IE 10+ */ }
+.filter-buttons .btn {
+  margin: 5px 5px 5px 0;
+}
 .pfc[data-tier="1"]:checked ~ .raid[data-tier="1"][data-pokemon="unknown"] { display: block; }
 .pfc[data-tier="2"]:checked ~ .raid[data-tier="2"][data-pokemon="unknown"] { display: block; }
 .pfc[data-tier="3"]:checked ~ .raid[data-tier="3"][data-pokemon="unknown"] { display: block; }
