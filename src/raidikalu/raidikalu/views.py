@@ -95,6 +95,7 @@ class RaidCreateView(TemplateView):
         hours = int(hours)
         minutes = int(minutes)
         raid_time = timezone.now()
+        raid_time = raid_time.astimezone(timezone.get_current_timezone())
         raid_time = raid_time.replace(hour=hours, minute=minutes)
       except AttributeError:
         LOG.error('Time input did not match')
