@@ -6,6 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <title>{% block title %}Raidikalu &ndash; listaa raideja, jos listaa{% endblock %}</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'raidikalu/img/icons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'raidikalu/img/icons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'raidikalu/img/icons/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'raidikalu/img/icons/manifest.json' %}">
+    <link rel="mask-icon" href="{% static 'raidikalu/img/icons/safari-pinned-tab.svg' %}" color="#ff0000">
+    <link rel="shortcut icon" href="{% static 'raidikalu/img/icons/favicon.ico' %}">
+    <meta name="msapplication-config" content="{% static 'raidikalu/img/icons/browserconfig.xml' %}">
+    <meta name="theme-color" content="#f9f9f9">
+    <meta property="og:image" content="{% static 'raidikalu/img/logo-512.png' %}">
+    <meta property="og:image:width" content="128">
+    <meta property="og:image:height" content="128">
+    <meta property="og:description" content="Listaa raideja, jos listaa">
+    <meta property="og:title" content="Raidikalu">
+    <meta property="og:url" content="https://raidit.izuom.net">
     <link href="{% static 'raidikalu/css/style.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     {% block head_extra %}{% endblock %}
