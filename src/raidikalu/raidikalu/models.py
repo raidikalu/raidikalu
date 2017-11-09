@@ -27,18 +27,23 @@ class TimestampedModel(models.Model):
 class EditableSettings(models.Model):
   expires_at = models.DateTimeField()
   raid_types_json = models.TextField()
+  notifications_json = models.TextField()
   _current_settings = None
 
   def __init__(self, *args, **kwargs):
     super(EditableSettings, self).__init__(*args, **kwargs)
-    try:
-      raid_types = json.loads(self.raid_types_json)
-      for raid_type in raid_types:
-        raid_type['pokemon_number'] = get_pokemon_number_by_name(raid_type['pokemon'])
-        raid_type['pokemon_image'] = settings.BASE_POKEMON_IMAGE_URL.format(raid_type['pokemon_number'])
-      setattr(self, 'raid_types', raid_types)
-    except (TypeError, json.decoder.JSONDecodeError) as e:
-      setattr(self, 'raid_types', [])
+    for field in self._meta.get_fields():
+      if field.name.endswith('_json'):
+        unserialized_field_name = field.name.replace('_json', '')
+        try:
+          unserialized_value = json.loads(getattr(self, field.name))
+          setattr(self, unserialized_field_name, unserialized_value)
+        except (TypeError, json.decoder.JSONDecodeError) as e:
+          LOG.error('Error parsing %s' % field.name, exc_info=True)
+          setattr(self, unserialized_field_name, [])
+    for raid_type in self.raid_types:
+      raid_type['pokemon_number'] = get_pokemon_number_by_name(raid_type['pokemon'])
+      raid_type['pokemon_image'] = settings.BASE_POKEMON_IMAGE_URL.format(raid_type['pokemon_number'])
 
   @classmethod
   def load_current_settings(cls):
@@ -137,25 +142,38 @@ class Raid(TimestampedModel):
     return settings.BASE_POKEMON_IMAGE_URL.format(self.pokemon_number)
 
   def get_time_left_until_start(self):
-    return self.start_at - timezone.now()
+    return self.start_at - timezone.now() if self.start_at else None
 
   def get_time_left_until_end(self):
-    return self.end_at - timezone.now()
+    return self.end_at - timezone.now() if self.end_at else None
 
   def get_time_left_until_start_display(self):
-    return format_timedelta(self.get_time_left_until_start())
+    return format_timedelta(self.get_time_left_until_start()) if self.start_at else '\u2013'
 
   def get_time_left_until_end_display(self):
-    return format_timedelta(self.get_time_left_until_end())
+    return format_timedelta(self.get_time_left_until_end()) if self.end_at else '\u2013'
+
+  def get_tier_display(self):
+    if self.tier == 1:
+      return '\u2605'
+    if self.tier == 2:
+      return '\u2605\u2605'
+    if self.tier == 3:
+      return '\u2605\u2605\u2605'
+    if self.tier == 4:
+      return '\u2605\u2605\u2605\u2605'
+    if self.tier == 5:
+      return '\u2605\u2605\u2605\u2605\u2605'
+    return '\u2013'
 
   def count_votes_and_update(self):
     tier = RaidVote.get_top_value(self, RaidVote.FIELD_TIER)
     if tier is not None:
       self.tier = int(tier)
 
-    pokemon = RaidVote.get_top_value(self, RaidVote.FIELD_POKEMON)
-    if pokemon is not None:
-      self.pokemon_name = pokemon
+    pokemon_name = RaidVote.get_top_value(self, RaidVote.FIELD_POKEMON)
+    if pokemon_name is not None:
+      self.pokemon_name = pokemon_name
 
     fast_move = RaidVote.get_top_value(self, RaidVote.FIELD_FAST_MOVE)
     if fast_move is not None:
@@ -180,7 +198,7 @@ class Raid(TimestampedModel):
 
 class RaidVote(TimestampedModel):
   FIELD_TIER = 'tier'
-  FIELD_POKEMON = 'pokemon'
+  FIELD_POKEMON = 'pokemon_name'
   FIELD_FAST_MOVE = 'fast_move'
   FIELD_CHARGE_MOVE = 'charge_move'
   FIELD_START_AT = 'start_at'
@@ -208,6 +226,26 @@ class RaidVote(TimestampedModel):
       if top_vote:
         return top_vote['vote_value']
     return None
+
+  @classmethod
+  def get_confidence(cls, raid, vote_field):
+    confidence = 0
+    if RaidVote.objects.filter(raid=raid, vote_field=vote_field, data_source__isnull=False).exists():
+      confidence = 100
+    else:
+      votes = RaidVote.objects.filter(raid=raid, vote_field=vote_field)
+      raid_value = getattr(raid, vote_field)
+      submitters = []
+      for vote in votes:
+        # Count only one vote per submitter, one for anonymous
+        if vote.submitter in submitters:
+          continue
+        submitters.append(vote.submitter)
+        if raid_value == vote.vote_value:
+          confidence += 1
+        else:
+          confidence -= 1
+    return confidence
 
   def __str__(self):
     return '%s // %s // %s' % (self.raid, self.vote_field, self.vote_value)

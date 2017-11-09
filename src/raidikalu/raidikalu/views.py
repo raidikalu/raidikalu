@@ -86,6 +86,9 @@ class RaidCreateView(TemplateView):
     raid_time_str = self.request.POST.get('raid-time', None)
     raid_time = None
 
+    if not raid_time_str:
+      return None
+
     if raid_time_value_type == 'absolute':
       try:
         hours, minutes = self.ABSOLUTE_TIME_REGEX.match(raid_time_str).groups()
