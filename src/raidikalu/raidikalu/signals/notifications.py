@@ -12,8 +12,8 @@ def notify_raid(instance, created, **kwargs):
   already_notified_raid_ids = cache.get('already_notified_raid_ids') or []
   if raid.pk in already_notified_raid_ids:
     return
-  should_notify = raid.pokemon_name and RaidVote.get_confidence(raid, RaidVote.FIELD_POKEMON) >= 3
-  should_notify |= raid.tier and RaidVote.get_confidence(raid, RaidVote.FIELD_TIER) >= 3
+  should_notify = bool(raid.pokemon_name and RaidVote.get_confidence(raid, RaidVote.FIELD_POKEMON) >= 3)
+  should_notify |= bool(raid.tier and RaidVote.get_confidence(raid, RaidVote.FIELD_TIER) >= 3)
   if should_notify:
     check_notifications(raid)
     already_notified_raid_ids.append(raid.pk)
