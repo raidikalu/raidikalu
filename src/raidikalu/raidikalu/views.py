@@ -3,7 +3,7 @@ import json
 import logging
 import re
 from calendar import timegm
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
@@ -159,8 +159,6 @@ class RaidReceiverView(View):
     data_source_api_key = self.kwargs.get('api_key')
     data_source = DataSource.objects.get(api_key=data_source_api_key)
     raid_data = json.loads(request.body)
-    gym = Gym.objects.get(pogo_id=raid_data.get('gym_id'))
-    raid, created = Raid.objects.get_or_create(gym=gym)
 
     votes = []
 
@@ -202,6 +200,15 @@ class RaidReceiverView(View):
         'vote_field': RaidVote.FIELD_START_AT,
         'vote_value': str(int(start_timestamp)),
       })
+
+    start_at = datetime.fromtimestamp(start_timestamp)
+    start_at = timezone.make_aware(start_at, timezone.get_current_timezone())
+    end_at = start_at + Raid.RAID_BATTLE_DURATION
+    if end_at <= timezone.now():
+      return
+
+    gym = Gym.objects.get(pogo_id=raid_data.get('gym_id'))
+    raid, created = Raid.objects.get_or_create(gym=gym)
 
     for vote in votes:
       RaidVote.objects.get_or_create(raid=raid, data_source=data_source, vote_field=vote['vote_field'], defaults=vote)
