@@ -4,9 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-
 django = "==1.11.6"
 "dj-database-url" = "==0.4.2"
+"django-bmemcached" = "==0.2.3"
 "django-cors-headers" = "==2.1.0"
 gunicorn = "==19.7.1"
 honcho = "==1.0.1"
