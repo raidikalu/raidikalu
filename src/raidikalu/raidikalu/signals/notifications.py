@@ -36,6 +36,7 @@ def check_notifications(raid):
       webhook_url = notification.get('webhook')
       channel = notification.get('channel', None)
       notify_discord(raid, webhook_url, channel)
+    return
 
 
 def notify_slack(raid, webhook_url, channel=None):
