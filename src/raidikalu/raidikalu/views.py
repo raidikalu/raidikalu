@@ -205,7 +205,7 @@ class RaidReceiverView(View):
     start_at = timezone.make_aware(start_at, timezone.get_current_timezone())
     end_at = start_at + Raid.RAID_BATTLE_DURATION
     if end_at <= timezone.now():
-      return
+      return HttpResponse('OK')
 
     gym = Gym.objects.get(pogo_id=raid_data.get('gym_id'))
     raid, created = Raid.objects.get_or_create(gym=gym)
