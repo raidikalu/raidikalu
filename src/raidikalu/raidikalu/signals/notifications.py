@@ -23,18 +23,21 @@ def notify_raid(instance, created, **kwargs):
 
 def check_notifications(raid):
   editable_settings = EditableSettings.get_current_settings()
+  already_notified_channels = []
   for notification in editable_settings.notifications:
     if 'pokemon' in notification and notification['pokemon'] != raid.pokemon_name:
       continue
     if 'tier' in notification and notification['tier'] != raid.tier:
       continue
+    webhook_url = notification['webhook']
+    channel = notification.get('channel', None)
+    channel_key = '%s|%s' % (channel or '', webhook_url)
+    if channel_key in already_notified_channels:
+      continue
+    already_notified_channels.append(channel_key)
     if notification['service'] == 'slack':
-      webhook_url = notification.get('webhook')
-      channel = notification.get('channel', None)
       notify_slack(raid, webhook_url, channel)
     elif notification['service'] == 'discord':
-      webhook_url = notification.get('webhook')
-      channel = notification.get('channel', None)
       notify_discord(raid, webhook_url, channel)
 
 
