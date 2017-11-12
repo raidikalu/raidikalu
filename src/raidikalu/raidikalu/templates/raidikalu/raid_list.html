@@ -1,0 +1,187 @@
+{% extends "raidikalu/base.html" %}
+{% load l10n %}
+
+{% block html_tag_extra %} class="no-js"{% endblock %}
+
+{% block head_extra %}
+    <style>
+      body {
+        display: none;
+      }
+      .no-js body,
+      .js-loaded body {
+        display: block;
+      }
+    </style>
+    <style>
+      {% for raid_type in editable_settings.raid_types %}
+      .pfc[value="{{ raid_type.pokemon }}"]:checked ~ .raid[data-pokemon="{{ raid_type.pokemon }}"] { display: block; }{% endfor %}
+    </style>
+    <script>document.documentElement.classList.remove('no-js');</script>
+{% endblock %}
+
+
+{% block main_content %}
+    <div class="new-raid-link-container">
+      <a href="{% url 'raidikalu.raid_create' %}" title="Ilmoita raidi" class="new-raid-link">
+        <span class="new-raid-link-label">&lt;&mdash; Ilmoita raidi</span>
+      </a>
+    </div>
+    <iframe src="" class="trainer-nickname-target-frame" name="trainer-nickname-target"></iframe>
+    <form action="" method="post" target="trainer-nickname-target">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="set-nickname" />
+      <input class="form-control trainer-nickname-input" name="nickname" value="{{ request.session.nickname }}" placeholder="Nimimerkki, jos haluat erottua" onchange="this.form.submit()" />
+    </form>
+    <p>Nää monnit kiinnostais</p>
+    {% for raid_type in editable_settings.raid_types %}
+    <input id="pf{{ forloop.counter }}" class="pfc" data-tier="{{ raid_type.tier }}" type="checkbox" checked value="{{ raid_type.pokemon }}" /><label for="pf{{ forloop.counter }}" class="pft{{ raid_type.tier }} pfl">{{ raid_type.pokemon }}</label>{% endfor %}
+    <div class="filter-buttons">
+      <button class="btn js-filter-all">Kaikki käy</button>
+      <button class="btn js-filter-none">Ei mikään</button>
+    </div>
+
+    {% regroup raids|dictsortreversed:"has_started" by has_started as raids_by_status %}
+
+    {% for grouped_raids in raids_by_status %}
+    {% if grouped_raids.grouper %}
+    <p>Menossa</p>
+    {% else %}
+    <p>Tulossa</p>
+    {% endif %}
+    {% for raid in grouped_raids.list %}
+    <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}">
+      <div class="raid-icon" style="background-image: url({{ raid.gym.image_url }});"></div>
+      <div class="raid-pokemon-icon" style="background-image: url({{ raid.get_pokemon_image_url }});"></div>
+      <div class="raid-tier">{{ raid.get_tier_display }}</div>
+      <label class="raid-pokemon">
+        <span>{{ raid.pokemon_name|default:"? ? ?" }}</span>
+        {% if raid.fast_move %}
+        <input class="moveset-checkbox styled-checkable-input" type="checkbox" />
+        <div class="raid-moveset">{{ raid.fast_move|default:"- - -" }} / {{ raid.charge_move|default:"- - -" }}</div>
+        {% endif %}
+      </label>
+      <div class="raid-time">
+        {% if raid.has_started %}
+        <span>Päättyy <strong>{{ raid.end_at|date:"H:i" }}</strong>, jäljellä <strong class="raid-time-left" data-time="{{ raid.end_at.timestamp }}">{{ raid.get_time_left_until_end_display }}</strong></span>
+        {% elif raid.start_at %}
+        <span>Alkaa <strong>{{ raid.start_at|date:"H:i" }}</strong>, alkuun <strong class="raid-time-left" data-time="{{ raid.start_at.timestamp }}">{{ raid.get_time_left_until_start_display }}</strong></span>
+        {% else %}
+        <span>Kellonaika puuttuu</span>
+        {% endif %}
+      </div>
+      <div class="raid-name">{{ raid.gym.name }}</div>
+      <a class="raid-map-link" href="https://gymhuntr.com/#{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-map-marker"></i></a>
+      <a class="raid-directions-link" href="https://www.google.com/maps/dir/Current+Location/{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-car"></i></a>
+    </div>
+    {% endfor %}
+    {% endfor %}
+
+    <script>
+      (function timers() {
+
+        var timerElements = Array.prototype.slice.call(document.querySelectorAll('[data-time]'));
+
+        setInterval(updateTimers, 1000);
+
+        function updateTimers() {
+
+          timerElements.forEach(updateTimer);
+
+        }
+
+        function updateTimer(element) {
+
+          var targetTime = parseInt(element.getAttribute('data-time'));
+          var currentTime = Math.round(new Date().getTime() / 1000.0);
+          var timeLeft = Math.max(targetTime - currentTime, 0);
+
+          if (timeLeft) {
+            var seconds = timeLeft % 60;
+            var minutes = Math.floor(timeLeft / 60 % 60);
+            var hours = Math.floor(timeLeft / 60 / 60 % 60);
+            element.innerHTML = pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+          }
+
+        }
+
+        function pad(val) {
+          return ('0' + val.toString()).slice(-2);
+        }
+
+      })();
+
+      (function persistPokemonFilters() {
+
+        if ( ! window.localStorage) {
+          return;
+        }
+
+        var selectedPokemonData = localStorage.getItem('selected-pokemon-v{{ editable_settings.pk }}') || '[{% for raid_type in editable_settings.raid_types %}"{{ raid_type.pokemon }}"{% if not forloop.last %},{% endif %}{% endfor %}]';
+        var selectedPokemon = JSON.parse(selectedPokemonData) || [];
+
+        Array.prototype.slice.call(document.querySelectorAll('.pfc')).forEach(initFilters);
+        document.addEventListener('change', handlePokemonFilterChange);
+
+        document.documentElement.classList.add('js-loaded');
+
+        function initFilters(filterCheckbox) {
+
+          var pokemon = filterCheckbox.value;
+          if (selectedPokemon.indexOf(pokemon) === -1) {
+            filterCheckbox.checked = false;
+          }
+
+        }
+
+        function handlePokemonFilterChange(event) {
+          persistFilter(event.target);
+        }
+
+        function persistFilter(checkbox) {
+
+          var pokemon;
+          var indexOfPokemon;
+
+          if ( ! checkbox.classList.contains('pfc')) {
+            return;
+          }
+
+          pokemon = checkbox.value;
+          indexOfPokemon = selectedPokemon.indexOf(pokemon);
+
+          if (checkbox.checked && indexOfPokemon === -1) {
+            selectedPokemon.push(pokemon);
+            localStorage.setItem('selected-pokemon-v3', JSON.stringify(selectedPokemon));
+          }
+          if ( ! checkbox.checked && indexOfPokemon !== -1) {
+            selectedPokemon.splice(indexOfPokemon, 1);
+            localStorage.setItem('selected-pokemon-v3', JSON.stringify(selectedPokemon));
+          }
+
+        }
+
+        var allButton = document.querySelector('.js-filter-all');
+        var noneButton = document.querySelector('.js-filter-none');
+        var filterCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.pfc'));
+
+        allButton.addEventListener('click', function setFilterAll() {
+          filterCheckboxes.forEach(function check(checkbox) {
+            checkbox.checked = true;
+            persistFilter(checkbox);
+          });
+        });
+
+        noneButton.addEventListener('click', function setFilterNone() {
+          filterCheckboxes.forEach(function uncheck(checkbox) {
+            checkbox.checked = false;
+            persistFilter(checkbox);
+          });
+        });
+
+      })();
+    </script>
+    <script>
+      document.documentElement.classList.add('js-loaded');
+    </script>
+{% endblock %}

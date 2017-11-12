@@ -1,0 +1,153 @@
+{% extends "raidikalu/base.html" %}
+
+{% block main_content %}
+    <form action="" method="post">
+      {% csrf_token %}
+      <h1>Ilmoita raidi</h1>
+      <input id="gym-choice-radio-0" class="gym-choice-radio gym-choice-none styled-checkable-input" type="radio" name="gym" value="" checked />
+
+      <input class="form-control gym-search-filter" placeholder="Salin nimi" />
+
+      <div class="gym-choices">
+        {% for gym in gyms %}
+        <input id="gym-choice-radio-{{ forloop.counter }}" class="gym-choice-radio styled-checkable-input" type="radio" name="gym" value="{{ gym.pk }}">
+        <label for="gym-choice-radio-{{ forloop.counter }}" class="gym-choice" data-gym-name="{{ gym.name|lower|addslashes }}" style="display: none;">
+          <div class="gym-image" style="background-image: url({{ gym.image_url }});">
+            <div class="gym-image-mask"></div>
+          </div>
+          <div class="gym-name">
+            {{ gym.name }}
+          </div>
+        </label>
+        {% endfor %}
+      </div>
+
+      <div class="raid-form">
+        <label for="gym-choice-radio-0" class="btn gym-choice-none-label">Vaihda salia</label>
+        <hr />
+        <button type="submit" class="btn raid-form-submit">Ilmoita raidi</button>
+        <hr />
+        <input id="raid-time-field-type-1" class="styled-checkable-input" type="radio" name="raid-time-field-type" value="start" checked />
+        <input id="raid-time-field-type-2" class="styled-checkable-input" type="radio" name="raid-time-field-type" value="end" />
+        <input id="raid-time-value-type-1" class="styled-checkable-input" type="radio" name="raid-time-value-type" value="relative" checked />
+        <input id="raid-time-value-type-2" class="styled-checkable-input" type="radio" name="raid-time-value-type" value="absolute" />
+        <div>
+          <label for="raid-time-field-type-1" class="btn raid-time-btn">Alkamisaika</label>
+          <label for="raid-time-field-type-2" class="btn raid-time-btn">Päättymisaika</label>
+        </div>
+        <div>
+          <label for="raid-time-value-type-1" class="btn raid-time-btn">Minuutteina</label>
+          <label for="raid-time-value-type-2" class="btn raid-time-btn">Kellonaikana</label>
+        </div>
+        <div>
+          <label for="raid-time-field" class="raid-time-input-label">
+            <span>Raidi&nbsp;</span>
+            <span class="raid-time-label-field-type-1">alkaa&nbsp;</span>
+            <span class="raid-time-label-field-type-2">päättyy&nbsp;</span>
+            <span class="raid-time-label-value-type-2">kello&nbsp;</span>
+          </label>
+          <input id="raid-time-field" class="form-control raid-time-field" name="raid-time" />
+          <label for="raid-time-field" class="raid-time-input-label">
+            <span class="raid-time-label-value-type-1">&nbsp;minuutin päästä</span>
+          </label>
+        </div>
+        <hr />
+        <input class="styled-checkable-input" type="radio" name="raid-boss" value="" checked />
+        <div class="">
+          <input id="raid-boss-input-checkbox-tier-5" class="styled-checkable-input" type="radio" name="raid-boss" value="tier-5" />
+          <label for="raid-boss-input-checkbox-tier-5" class="raid-boss-input-label raid-boss-input-label-tier-5"></label>
+          <input id="raid-boss-input-checkbox-tier-4" class="styled-checkable-input" type="radio" name="raid-boss" value="tier-4" />
+          <label for="raid-boss-input-checkbox-tier-4" class="raid-boss-input-label raid-boss-input-label-tier-4"></label>
+          <input id="raid-boss-input-checkbox-tier-3" class="styled-checkable-input" type="radio" name="raid-boss" value="tier-3" />
+          <label for="raid-boss-input-checkbox-tier-3" class="raid-boss-input-label raid-boss-input-label-tier-3"></label>
+          <input id="raid-boss-input-checkbox-tier-2" class="styled-checkable-input" type="radio" name="raid-boss" value="tier-2" />
+          <label for="raid-boss-input-checkbox-tier-2" class="raid-boss-input-label raid-boss-input-label-tier-2"></label>
+          <input id="raid-boss-input-checkbox-tier-1" class="styled-checkable-input" type="radio" name="raid-boss" value="tier-1" />
+          <label for="raid-boss-input-checkbox-tier-1" class="raid-boss-input-label raid-boss-input-label-tier-1"></label>
+        </div>
+        {% regroup editable_settings.raid_types|dictsortreversed:"tier" by tier as raid_types_by_tier %}
+        {% for grouped_raid_types in raid_types_by_tier %}
+        <div class="raid-boss-input-tier-group">
+          {% for raid_type in grouped_raid_types.list %}
+          <input id="raid-boss-input-checkbox-{{ raid_type.pokemon_number }}" class="styled-checkable-input" type="radio" name="raid-boss" value="{{ raid_type.pokemon|addslashes }}" />
+          <label for="raid-boss-input-checkbox-{{ raid_type.pokemon_number }}" class="raid-boss-input-label" style="background-image: url({{ raid_type.pokemon_image }});"></label>{% endfor %}
+        </div>
+        {% endfor %}
+        <hr />
+      </div>
+    </form>
+
+    <script>
+      (function () {
+
+        var gymChoiceElements = document.querySelectorAll('.gym-choice');
+        var debouncedFilterGymChoices = throttle(filterGymChoices, 200);
+
+        document.querySelector('.gym-search-filter').addEventListener('input', handleSearchInput);
+        document.querySelector('.gym-search-filter').addEventListener('keydown', handleSearchKeyDown);
+
+        function handleSearchInput(event) {
+
+          var query = event.target.value.toLowerCase();
+
+          if (query.length < 3) {
+            return;
+          }
+
+          debouncedFilterGymChoices(query);
+
+        }
+
+        function filterGymChoices(query) {
+
+          var length = gymChoiceElements.length;
+          var gymChoiceElement;
+          var i;
+
+          for (i = 0; i < length; i++) {
+            gymChoiceElement = gymChoiceElements[i];
+            if ( ! gymChoiceElement.dataGymName) {
+              gymChoiceElement.dataGymName = gymChoiceElement.getAttribute('data-gym-name');
+            }
+            if (gymChoiceElement.dataGymName.indexOf(query) !== -1) {
+              gymChoiceElement.style.display = '';
+            }
+            else {
+              gymChoiceElement.style.display = 'none';
+            }
+          }
+
+        }
+
+        function handleSearchKeyDown(event) {
+
+          if (event.keyCode === 13) {
+            event.preventDefault();
+          }
+
+        }
+
+        function throttle(fn, threshold, scope) {
+          var last;
+          var deferTimer;
+          return function throttled() {
+            var context = scope || this;
+            var now = +new Date;
+            var args = arguments;
+            if (last && now < last + threshold) {
+              clearTimeout(deferTimer);
+              deferTimer = setTimeout(function callLater() {
+                last = now;
+                fn.apply(context, args);
+              }, threshold);
+            }
+            else {
+              last = now;
+              fn.apply(context, args);
+            }
+          };
+        }
+
+      })();
+    </script>
+{% endblock %}

@@ -1,0 +1,18 @@
+<svg version="1.1" baseProfile="full" width="100" height="100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+  <defs>
+    <clipPath id="circle">
+      <circle cx="50" cy="50" r="50" />
+    </clipPath>
+    <clipPath id="rounded-rect">
+      <rect x="0" y="0" width="100" height="100" rx="10" ry="10" />
+    </clipPath>
+  </defs>
+
+  <rect x="0" y="0" width="100" height="100" fill="#fff" clip-path="url(#rounded-rect)" />
+  <ellipse cx="50" cy="53" rx="50" ry="20" fill="#f00" clip-path="url(#circle)" />
+  <rect x="0" y="47" width="100" height="6" fill="#f00" clip-path="url(#circle)" />
+  <ellipse cx="50" cy="47" rx="50" ry="20" fill="#fff" clip-path="url(#circle)" />
+  <circle cx="68" cy="73" r="14" fill="#fff" stroke="#f00" stroke-width="6" transform="rotate(-45 68 73) scale(1, 0.9)" />
+
+</svg>

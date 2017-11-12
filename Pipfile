@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==1.11.6"
+"dj-database-url" = "==0.4.2"
+"django-bmemcached" = "==0.2.3"
+"django-cors-headers" = "==2.1.0"
+gunicorn = "==19.7.1"
+honcho = "==1.0.1"
+"psycopg2" = "==2.7.3.1"
+raven = "==6.2.1"
+requests = "==2.18.4"
+whitenoise = "==3.3.1"
+raidikalu = {path = "./src/raidikalu", editable = true}
+
+[requires]
+python_version = "3.6"

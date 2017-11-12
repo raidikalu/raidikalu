@@ -1,2 +1,7 @@
 .ssh
 *.pyc
+*.egg-info
+database.db
+local_settings.py
+mediaroot/
+staticroot/
