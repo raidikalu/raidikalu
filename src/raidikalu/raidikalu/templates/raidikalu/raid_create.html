@@ -84,6 +84,7 @@
         var debouncedFilterGymChoices = throttle(filterGymChoices, 200);
 
         document.querySelector('.gym-search-filter').addEventListener('input', handleSearchInput);
+        document.querySelector('.gym-search-filter').addEventListener('keydown', handleSearchKeyDown);
 
         function handleSearchInput(event) {
 
@@ -114,6 +115,14 @@
             else {
               gymChoiceElement.style.display = 'none';
             }
+          }
+
+        }
+
+        function handleSearchKeyDown(event) {
+
+          if (event.keyCode === 13) {
+            event.preventDefault();
           }
 
         }
