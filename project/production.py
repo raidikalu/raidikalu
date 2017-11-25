@@ -17,6 +17,16 @@ MIDDLEWARE = [
   'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
 ] + MIDDLEWARE
 
+CHANNEL_LAYERS = {
+  'default': {
+    'BACKEND': 'asgi_redis.RedisChannelLayer',
+    'CONFIG': {
+      'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+    },
+    'ROUTING': 'raidikalu.routing.channel_routing',
+  },
+}
+
 CACHES = {
   'default': {
     'BACKEND': 'django_bmemcached.memcached.BMemcached',

@@ -1,0 +1,61 @@
+{% load l10n %}{% spaceless %}
+    <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}">
+      <input id="raid-toggle-{{ raid.pk }}" class="raid-toggle styled-checkable-input" type="checkbox" />
+      <div class="raid-main">
+        <label for="raid-toggle-{{ raid.pk }}">
+          <div class="raid-icon" style="background-image: url({{ raid.gym.image_url }});"></div>
+          <div class="raid-pokemon-icon" style="background-image: url({{ raid.get_pokemon_image_url }});"></div>
+          <div class="raid-tier">{{ raid.get_tier_display }}</div>
+          <div class="raid-pokemon">
+            <span>{{ raid.pokemon_name|default:"? ? ?" }}</span>
+          </div>
+          <div class="raid-time">
+            {% if raid.has_started %}
+            <span>Päättyy&nbsp;<strong>{{ raid.end_at|date:"H:i" }}</strong>, jäljellä&nbsp;<strong class="raid-time-left" data-time="{{ raid.end_at.timestamp }}">{{ raid.get_time_left_until_end_display }}</strong></span>
+            {% elif raid.start_at %}
+            <span>Alkaa&nbsp;<strong>{{ raid.start_at|date:"H:i" }}</strong>, alkuun&nbsp;<strong class="raid-time-left" data-time="{{ raid.start_at.timestamp }}">{{ raid.get_time_left_until_start_display }}</strong></span>
+            {% else %}
+            <span>Kellonaika puuttuu</span>
+            {% endif %}
+            {% if raid.attendance_count > 0 %}
+            <span>, raidaajia&nbsp;<strong>{{ raid.attendance_count }}</strong></span>
+            {% endif %}
+          </div>
+          <div class="raid-name">{{ raid.gym.name }}</div>
+        </label>
+        <a class="raid-map-link" href="https://gymhuntr.com/#{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-map-marker"></i></a>
+        <a class="raid-directions-link" href="https://www.google.com/maps/dir/Current+Location/{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-car"></i></a>
+      </div>
+      <div class="raid-extra">
+        <div class="raid-details">
+          {% if raid.fast_move %}
+          <div class="raid-detail">Liikkeet: <strong>{{ raid.fast_move|default:"- - -" }} / {{ raid.charge_move|default:"- - -" }}</strong></div>
+          {% endif %}
+          {% if raid.submitter %}
+          <div class="raid-detail">Ilmoittaja: <strong>{{ raid.submitter }}</strong></div>
+          {% endif %}
+        </div>
+        {% if raid.start_at %}
+        <div class="raider-attendance-choices" data-raid-id="{{ raid.pk }}">
+          <div>Haluun raidata klo</div>
+          {% for start_time in raid.start_times_with_attendances %}
+          <input id="rac-{{ raid.pk }}-{{ forloop.counter0 }}" class="raid-attendance-choice styled-checkable-input" type="radio" name="rac-{{ raid.pk }}" value="{{ forloop.counter0 }}" />
+          <label for="rac-{{ raid.pk }}-{{ forloop.counter0 }}" class="btn">{{ start_time.time|date:"H:i" }} (<span class="rac-{{ forloop.counter0 }}-count">{{ start_time.attendances|length }}</span>)</label>
+          {% endfor %}
+          <input id="rac-{{ raid.pk }}-cancel" class="styled-checkable-input raid-attandance-cancel" type="radio" name="rac-{{ raid.pk }}" value="cancel" checked />
+          <label for="rac-{{ raid.pk }}-cancel" class="btn">Enpäs raidaakaan!</label>
+        </div>
+        {% for start_time in raid.start_times_with_attendances %}
+        {% if start_time.attendances %}
+        <div class="raid-attendees">
+          <div class="raid-attendee"><strong>{{ start_time.time|date:"H:i" }}</strong></div>
+          {% for attendance in start_time.attendances %}
+          <div class="raid-attendee">- {{ attendance.submitter }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+{% endspaceless %}

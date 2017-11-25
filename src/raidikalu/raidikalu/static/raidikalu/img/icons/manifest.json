@@ -1,5 +1,7 @@
 {
   "name": "Raidikalu",
+  "short_name": "Raidikalu",
+  "start_url": "/",
   "icons": [
     {
       "src": "/static/raidikalu/img/icons/android-chrome-192x192.png",

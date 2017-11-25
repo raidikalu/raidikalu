@@ -7,6 +7,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from raidikalu import settings
 from raidikalu.pokedex import get_pokemon_number_by_name
+from raidikalu.utils import format_timedelta
 
 
 LOG = logging.getLogger(__name__)
@@ -116,6 +117,7 @@ class Raid(TimestampedModel):
   RAID_DURATION = RAID_EGG_DURATION + RAID_BATTLE_DURATION
 
   gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE)
+  submitter = models.CharField(max_length=255, blank=True)
   tier = models.PositiveSmallIntegerField(null=True, blank=True)
   pokemon_name = models.CharField(max_length=255, blank=True)
   pokemon_number = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -152,6 +154,25 @@ class Raid(TimestampedModel):
 
   def get_time_left_until_end_display(self):
     return format_timedelta(self.get_time_left_until_end()) if self.end_at else '\u2013'
+
+  def get_start_time_choices(self):
+    start_time_choices = []
+    if self.start_at:
+      # The first start time choice should be at least 5 minutes in the future
+      # So we choose the initial offset based on that
+      if self.start_at.minute % 10 > 5:
+        start_offset_minutes = 15 - self.start_at.minute % 10
+      else:
+        start_offset_minutes = 10 - self.start_at.minute % 10
+      start_offset = self.start_at + timedelta(minutes=start_offset_minutes)
+      start_time_choices = [
+        self.start_at,
+        start_offset,
+        start_offset + timedelta(minutes=10),
+        start_offset + timedelta(minutes=20),
+        start_offset + timedelta(minutes=30),
+      ]
+    return start_time_choices
 
   def get_tier_display(self):
     if self.tier == 1:
@@ -210,7 +231,7 @@ class RaidVote(TimestampedModel):
     (FIELD_START_AT, 'Alkamisaika'),
   )
   raid = models.ForeignKey(Raid, related_name='votes', on_delete=models.CASCADE)
-  submitter = models.CharField(max_length=255)
+  submitter = models.CharField(max_length=255, blank=True)
   vote_field = models.CharField(max_length=255, choices=FIELD_CHOICES)
   vote_value = models.CharField(max_length=255)
   data_source = models.ForeignKey(DataSource, on_delete=models.CASCADE, null=True, blank=True)
@@ -254,16 +275,7 @@ class RaidVote(TimestampedModel):
 class Attendance(TimestampedModel):
   raid = models.ForeignKey(Raid, related_name='attendances', on_delete=models.CASCADE)
   submitter = models.CharField(max_length=255)
-  attendee_count = models.PositiveSmallIntegerField(default=1)
-  estimated_arrival_at = models.DateTimeField(default=timezone.now)
-  has_arrived = models.BooleanField(default=False)
-  has_finished = models.BooleanField(default=False)
+  start_time_choice = models.PositiveSmallIntegerField()
 
   def __str__(self):
     return '%s // ' % self.raid
-
-
-def format_timedelta(timedelta_obj):
-  hours, remainder = divmod(timedelta_obj.seconds, 3600)
-  minutes, seconds = divmod(remainder, 60)
-  return '%02d:%02d:%02d' % (hours, minutes, seconds)
