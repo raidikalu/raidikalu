@@ -47,6 +47,7 @@
     {% endif %}
     {% for raid in grouped_raids.list %}
     <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}" data-gym="{{ raid.gym.name|addslashes }}">
+      <a name="raidi-{{ raid.pk }}" class="raid-anchor"></a>
       <input id="raid-toggle-{{ raid.pk }}" class="raid-toggle styled-checkable-input" type="checkbox" />
       <div class="raid-main">
         <label for="raid-toggle-{{ raid.pk }}">
@@ -103,6 +104,12 @@
         {% endif %}
         {% endfor %}
         {% endif %}
+        <div class="sharing-links">
+          <div>Täppää, jos haluut linkata</div>
+          <a href="fb-messenger://share/?link={% filter urlencode:'' %}{{ request.build_absolute_uri }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">Messengeriin</a>,
+          <a href="whatsapp://send?text={% filter urlencode:'' %}{{ request.build_absolute_uri }}#raidi-{{ raid.pk }} {% endfilter %}"" target="_blank">WhatsAppiin</a>,
+          <a href="tg://msg_url?url={% filter urlencode:'' %}{{ request.build_absolute_uri }}#raidi-{{ raid.pk }} {% endfilter %}"" target="_blank">Telegramiin</a>
+        </div>
       </div>
     </div>
     {% endfor %}

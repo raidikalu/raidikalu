@@ -13,6 +13,10 @@ body {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   box-sizing: border-box;
 }
+a {
+  color: #7E57C2;
+  text-decoration: none;
+}
 .btn {
   display: inline-block;
   padding: 5px 10px;
@@ -217,6 +221,12 @@ hr {
   background: #fff;
   margin-bottom: 10px;
 }
+.raid-anchor {
+  display: block;
+  width: 0;
+  height: 0;
+  margin-top: -5px;
+}
 .raid-main {
   position: relative;
   padding: 10px 50px 10px 80px;
@@ -357,6 +367,17 @@ hr {
 }
 .raid-attendee {
   font-size: 12px;
+}
+.sharing-links {
+  font-size: 12px;
+  opacity: .7;
+}
+.sharing-links div {
+  margin: 10px 0 -10px 0;
+}
+.sharing-links a {
+  display: inline-block;
+  padding-top: 10px;
 }
 .gym-choices {
   margin-top: 30px;
