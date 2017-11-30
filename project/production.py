@@ -9,6 +9,8 @@ RAVEN_CONFIG = {
   'dsn': os.environ.get('SENTRY_DSN', ''),
 }
 
+GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', None)
+
 INSTALLED_APPS += [
   'raven.contrib.django.raven_compat',
 ]

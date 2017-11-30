@@ -21,12 +21,19 @@
     <meta property="og:image:height" content="128">
     <link href="{% static 'raidikalu/css/style.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    {% if GOOGLE_ANALYTICS_ID %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_ID }}"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());GOOGLE_ANALYTICS_ID='{{ GOOGLE_ANALYTICS_ID }}';</script>
+    {% endif %}
     {% block head_extra %}{% endblock %}
   </head>
   <body>
     <div class="main-container">
       {% block main_content %}{% endblock %}
     </div>
+    {% if GOOGLE_ANALYTICS_ID %}
+    <script async src="{% static 'raidikalu/js/analytics.js' %}"></script>
+    {% endif %}
   </body>
 </html>
 {% endspaceless %}
