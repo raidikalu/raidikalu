@@ -22,6 +22,8 @@
 
 
 {% block main_content %}
+    <input id="clipboard-input" class="clipboard-input" tabindex="-1" />
+
     <div class="new-raid-link-container">
       <a href="{% url 'raidikalu.raid_create' %}" title="Ilmoita raidi" class="new-raid-link">
         <span class="new-raid-link-label">&lt;&mdash; Ilmoita raidi</span>
@@ -105,10 +107,13 @@
         {% endfor %}
         {% endif %}
         <div class="sharing-links">
-          <div>Täppää, jos haluut linkata</div>
-          <a href="fb-messenger://share/?link={% filter urlencode:'' %}{{ request.build_absolute_uri }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">Messengeriin</a>,
-          <a href="whatsapp://send?text={% filter urlencode:'' %}{{ request.build_absolute_uri }}#raidi-{{ raid.pk }} {% endfilter %}"" target="_blank">WhatsAppiin</a>,
-          <a href="tg://msg_url?url={% filter urlencode:'' %}{{ request.build_absolute_uri }}#raidi-{{ raid.pk }} {% endfilter %}"" target="_blank">Telegramiin</a>
+          <span>Linkkaa </span>
+          <a href="whatsapp://send?text={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">WhatsAppiin</a>
+          <span>, </span>
+          <a href="tg://msg_url?url={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">Telegramiin</a>
+          <span> tai </span>
+          <a href="#" onclick="copyToClipboard(this, '{% filter addslashes %}{{ BASE_URL }}#raidi-{{ raid.pk }}{% endfilter %}');return false;">kopioi&nbsp;linkki</a>
+          <span>.</span>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 initTimers();
 initNicknameListeners();
 initAttendanceListeners(document);
+initRaidLinking();
 
 
 var timerElements = document.querySelectorAll('[data-time]');
@@ -167,5 +168,37 @@ function initMessageListeners() {
     }
 
   }
+
+}
+
+
+function initRaidLinking() {
+
+  openLinkedRaid();
+  window.addEventListener('hashchange', openLinkedRaid);
+
+  function openLinkedRaid() {
+
+    var raidId;
+
+    if (window.location.hash) {
+      raidId = window.location.hash.split('-')[1];
+      document.getElementById('raid-toggle-' + raidId).checked = true;
+    }
+
+  }
+
+}
+
+
+function copyToClipboard(targetElement, text) {
+
+  var clipboardInput = document.getElementById('clipboard-input');
+  clipboardInput.value = text;
+  clipboardInput.select();
+  document.execCommand('copy');
+
+  targetElement.focus();
+  targetElement.innerHTML = 'kopioi&nbsp;linkki&nbsp;&#x2714;';
 
 }

@@ -37,7 +37,8 @@ hr {
   margin: 50px auto;
 }
 .pfc,
-.styled-checkable-input {
+.styled-checkable-input,
+.clipboard-input {
   position: absolute;
   width: 0;
   height: 0;
@@ -222,10 +223,10 @@ hr {
   margin-bottom: 10px;
 }
 .raid-anchor {
-  display: block;
+  position: absolute;
   width: 0;
   height: 0;
-  margin-top: -5px;
+  top: -5px;
 }
 .raid-main {
   position: relative;
