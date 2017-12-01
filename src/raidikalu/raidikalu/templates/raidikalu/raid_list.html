@@ -41,6 +41,7 @@
 
     {% regroup raids|dictsortreversed:"has_started" by has_started as raids_by_status %}
 
+    {% if raids %}
     {% for grouped_raids in raids_by_status %}
     {% if grouped_raids.grouper %}
     <p>Menossa</p>
@@ -119,6 +120,19 @@
     </div>
     {% endfor %}
     {% endfor %}
+    {% else %}
+    {% if editable_settings.additional_information %}
+    <p>Ei yhtäkään raidia, mutta nyt on hyvä aika tsekata mitä alalaidasta löytyy.</p>
+    {% else %}
+    <p>Ei yhtäkään raidia</p>
+    {% endif %}
+    {% endif %}
+
+    {% if editable_settings.additional_information %}
+    <div class="additional-information">
+      {{ editable_settings.additional_information|safe }}
+    </div>
+    {% endif %}
 
     <script>
       var CSRFTOKEN = '{{ csrf_token|addslashes }}';

@@ -380,6 +380,10 @@ hr {
   display: inline-block;
   padding-top: 10px;
 }
+.additional-information {
+  margin-top: 50px;
+  font-size: 12px;
+}
 .gym-choices {
   margin-top: 30px;
   text-align: center;

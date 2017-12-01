@@ -29,6 +29,7 @@ class EditableSettings(models.Model):
   expires_at = models.DateTimeField()
   raid_types_json = models.TextField()
   notifications_json = models.TextField()
+  additional_information = models.TextField(blank=True)
   _current_settings = None
 
   def __init__(self, *args, **kwargs):
@@ -98,6 +99,7 @@ class Gym(TimestampedModel):
   latitude = models.DecimalField(max_digits=9, decimal_places=6)
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
+  is_park = models.BooleanField(default=False)
 
   def __str__(self):
     return self.name
