@@ -2,7 +2,6 @@
 initTimers();
 initNicknameListeners();
 initAttendanceListeners(document);
-initRaidLinking();
 
 
 var timerElements = document.querySelectorAll('[data-time]');
@@ -187,18 +186,5 @@ function initRaidLinking() {
     }
 
   }
-
-}
-
-
-function copyToClipboard(targetElement, text) {
-
-  var clipboardInput = document.getElementById('clipboard-input');
-  clipboardInput.value = text;
-  clipboardInput.select();
-  document.execCommand('copy');
-
-  targetElement.focus();
-  targetElement.innerHTML = 'kopioi&nbsp;linkki&nbsp;&#x2714;';
 
 }
