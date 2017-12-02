@@ -46,6 +46,7 @@
     data['pokemon'] = raidElement.getAttribute('data-pokemon');
     data['tier'] = raidElement.getAttribute('data-tier');
     data['gym'] = raidElement.getAttribute('data-gym');
+    data['event_action'] = eventName;
 
     gtag('event', eventName, data);
 
