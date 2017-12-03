@@ -34,6 +34,9 @@
           {% if raid.submitter %}
           <div class="raid-detail">Ilmoittaja: <strong>{{ raid.submitter }}</strong></div>
           {% endif %}
+          {% if raid.gym.is_park %}
+          <div class="raid-detail">Puisto: <strong>todennäköisesti</strong></div>
+          {% endif %}
         </div>
         {% if raid.start_at %}
         <div class="raider-attendance-choices" data-raid-id="{{ raid.pk }}">
