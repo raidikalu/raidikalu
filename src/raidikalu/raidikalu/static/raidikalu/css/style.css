@@ -72,6 +72,25 @@ hr {
 .new-raid-link:visited {
   color: #f9f9f9;
 }
+.refresh-button {
+  display: none;
+  position: fixed;
+  right: 108px;
+  bottom: 25px;
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+  line-height: 40px;
+  vertical-align: top;
+  color: #fff;
+  background-color: #7E57C2;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,.2);
+  outline: none;
+  cursor: pointer;
+  z-index: 2;
+}
 @media (max-width: 959px) {
   .main-container,
   .new-raid-link-container {
@@ -94,6 +113,9 @@ hr {
   }
   .new-raid-link-label {
     display: none;
+  }
+  .refresh-button {
+    display: block;
   }
 }
 .new-raid-link:focus {
