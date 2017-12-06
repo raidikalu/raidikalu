@@ -64,8 +64,8 @@
           <a href="whatsapp://send?text={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">WhatsAppiin</a>
           <span>, </span>
           <a href="tg://msg_url?url={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">Telegramiin</a>
-          <span> tai </span>
-          <a href="#" onclick="copyToClipboard(this, '{% filter addslashes %}{{ BASE_URL }}#raidi-{{ raid.pk }}{% endfilter %}');return false;">kopioi&nbsp;linkki</a>
+          <span> tai kopioi </span>
+          <a href="{% filter addslashes %}{{ BASE_URL }}#raidi-{{ raid.pk }}{% endfilter %}">linkki</a>
           <span>.</span>
         </div>
       </div>
