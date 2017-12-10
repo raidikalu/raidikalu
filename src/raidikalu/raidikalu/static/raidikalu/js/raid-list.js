@@ -221,7 +221,12 @@ function initRefreshButton() {
       }
     }
 
-    window.location.reload();
+    if (location.hash) {
+      window.location.reload(true);
+    }
+    else {
+      window.location.reload();
+    }
 
   }
 
