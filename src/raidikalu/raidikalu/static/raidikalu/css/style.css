@@ -80,7 +80,8 @@ hr {
   width: 48px;
   height: 48px;
   font-size: 18px;
-  line-height: 40px;
+  line-height: 48px;
+  text-align: center;
   vertical-align: top;
   color: #fff;
   background-color: #7E57C2;

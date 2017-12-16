@@ -3,7 +3,6 @@ initTimers();
 initNicknameListeners();
 initAttendanceListeners(document);
 initRaidLinking();
-initRefreshButton();
 
 
 var timerElements = document.querySelectorAll('[data-time]');
@@ -188,47 +187,5 @@ function initRaidLinking() {
     }
 
   }
-
-}
-
-
-function initRefreshButton() {
-
-  var refreshButton = document.querySelector('.refresh-button');
-  var lastRaidId;
-
-  document.body.addEventListener('change', handleChange);
-  refreshButton.addEventListener('click', handleClick);
-
-  function handleChange(event) {
-
-    if (event.target.checked && event.target.id.indexOf('raid-toggle-') === 0) {
-      lastRaidId = event.target.id.split('-')[2];
-    }
-
-  }
-
-  function handleClick() {
-
-    var isRaidChecked = !!document.querySelector('.raid-toggle:checked');
-
-    if (isRaidChecked && lastRaidId) {
-      if(history.pushState) {
-        history.pushState(null, null, '#raidi-' + lastRaidId);
-      }
-      else {
-        location.hash = '#raidi-' + lastRaidId;
-      }
-    }
-
-    if (location.hash) {
-      window.location.reload(true);
-    }
-    else {
-      window.location.reload();
-    }
-
-  }
-
 
 }
