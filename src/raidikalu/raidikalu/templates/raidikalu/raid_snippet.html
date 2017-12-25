@@ -37,6 +37,11 @@
           {% if raid.gym.is_park %}
           <div class="raid-detail">Puisto: <strong>todennäköisesti</strong></div>
           {% endif %}
+          {% if raid.gym.latest_ex_raid_at and raid.gym.latest_ex_raid_at > now %}
+          <div class="raid-detail">Seuraava EX-raidi: <strong>{{ raid.gym.get_latest_ex_raid_display }}</strong></div>
+          {% elif raid.gym.latest_ex_raid_at and raid.gym.latest_ex_raid_at <= now %}
+          <div class="raid-detail">Edellinen EX-raidi: <strong>{{ raid.gym.get_latest_ex_raid_display }}</strong></div>
+          {% endif %}
         </div>
         {% if raid.start_at %}
         <div class="raider-attendance-choices" data-raid-id="{{ raid.pk }}">

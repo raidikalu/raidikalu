@@ -96,6 +96,7 @@ class RaidListView(BaseRaidView):
     context['editable_settings'] = EditableSettings.get_current_settings()
     context['raids'] = self.get_queryset()
     context['request_nickname'] = get_nickname(self.request)
+    context['now'] = timezone.now()
     for raid in context['raids']:
       self.update_raid_context(raid)
     return context
@@ -123,6 +124,7 @@ class RaidSnippetView(BaseRaidView):
     context = super(RaidSnippetView, self).get_context_data(**kwargs)
     self.update_raid_context(self.raid)
     context['raid'] = self.raid
+    context['now'] = timezone.now()
     return context
 
 def invalidate_raid_snippet_from_raid(instance, **kwargs):

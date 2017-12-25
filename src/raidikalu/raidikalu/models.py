@@ -5,6 +5,7 @@ from datetime import timedelta, datetime
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
+from django.utils.dateformat import format as date_format
 from raidikalu import settings
 from raidikalu.pokedex import get_pokemon_number_by_name
 from raidikalu.utils import format_timedelta
@@ -100,6 +101,37 @@ class Gym(TimestampedModel):
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
   is_park = models.BooleanField(default=False)
+  latest_ex_raid_at = models.DateTimeField(null=True, blank=True)
+
+  def get_latest_ex_raid_display(self):
+    today = timezone.now().date()
+    ex_raid_day = self.latest_ex_raid_at.date()
+    days_difference = (ex_raid_day - today).days
+    print('##############')
+    print('##############')
+    print('##############')
+    print(repr(ex_raid_day - today))
+    print(days_difference)
+    if days_difference == 0:
+      return 'tänään'
+    elif days_difference == 1:
+      return 'huomenna'
+    elif days_difference == 2:
+      return 'ylihuomenna'
+    elif 2 < days_difference < 7:
+      return '%s päivän päästä' % days_difference
+    elif 7 <= days_difference < 10:
+      return 'viikon päästä'
+    elif days_difference == -1:
+      return 'eilen'
+    elif days_difference == -2:
+      return 'toissapäivänä'
+    elif -2 > days_difference > -7:
+      return '%s päivää sitten' % abs(days_difference)
+    elif -7 >= days_difference > -10:
+      return 'viikko sitten'
+    else:
+      return date_format(self.latest_ex_raid_at, 'j.n.Y')
 
   def __str__(self):
     return self.name
