@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import timedelta, datetime
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.utils import timezone
 from raidikalu import settings
 from raidikalu.pokedex import get_pokemon_number_by_name
@@ -133,7 +133,7 @@ class Raid(TimestampedModel):
       self.tier = EditableSettings.get_tier_for_pokemon(self.pokemon_name)
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
     self.pokemon_number = get_pokemon_number_by_name(self.pokemon_name)
-    Raid.objects.filter(Q(end_at__lt=timezone.now())).delete()
+    Raid.objects.filter(end_at__lt=timezone.now()).delete()
     return super(Raid, self).save(*args, **kwargs)
 
   @property
