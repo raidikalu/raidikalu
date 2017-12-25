@@ -2,6 +2,7 @@
 import json
 import logging
 from datetime import timedelta, datetime
+from math import floor
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
@@ -107,11 +108,7 @@ class Gym(TimestampedModel):
     today = timezone.now().date()
     ex_raid_day = self.latest_ex_raid_at.date()
     days_difference = (ex_raid_day - today).days
-    print('##############')
-    print('##############')
-    print('##############')
-    print(repr(ex_raid_day - today))
-    print(days_difference)
+    weeks = floor(abs(days_difference) / 7)
     if days_difference == 0:
       return 'tänään'
     elif days_difference == 1:
@@ -120,7 +117,7 @@ class Gym(TimestampedModel):
       return 'ylihuomenna'
     elif 2 < days_difference < 7:
       return '%s päivän päästä' % days_difference
-    elif 7 <= days_difference < 10:
+    elif 7 <= days_difference < 12:
       return 'viikon päästä'
     elif days_difference == -1:
       return 'eilen'
@@ -128,8 +125,10 @@ class Gym(TimestampedModel):
       return 'toissapäivänä'
     elif -2 > days_difference > -7:
       return '%s päivää sitten' % abs(days_difference)
-    elif -7 >= days_difference > -10:
+    elif -7 >= days_difference > -14:
       return 'viikko sitten'
+    elif days_difference <= -14:
+      return '%s viikkoa sitten' % weeks
     else:
       return date_format(self.latest_ex_raid_at, 'j.n.Y')
 
