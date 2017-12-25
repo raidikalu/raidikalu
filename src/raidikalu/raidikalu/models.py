@@ -127,14 +127,13 @@ class Raid(TimestampedModel):
   charge_move = models.CharField(max_length=255, blank=True)
   start_at = models.DateTimeField(null=True, blank=True)
   end_at = models.DateTimeField(null=True, blank=True)
-  latest_ex_raid_at = models.DateTimeField(null=True, blank=True)
 
   def save(self, *args, **kwargs):
     if self.pokemon_name and not self.tier:
       self.tier = EditableSettings.get_tier_for_pokemon(self.pokemon_name)
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
     self.pokemon_number = get_pokemon_number_by_name(self.pokemon_name)
-    Raid.objects.filter(Q(end_at__lt=timezone.now()) | Q(created_at__lt=timezone.now() - Raid.RAID_DURATION)).exclude(latest_ex_raid_at__gt=timezone.now() - Raid.RAID_DURATION).delete()
+    Raid.objects.filter(Q(end_at__lt=timezone.now())).delete()
     return super(Raid, self).save(*args, **kwargs)
 
   @property
