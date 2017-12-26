@@ -102,6 +102,9 @@ class Gym(TimestampedModel):
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
   is_park = models.BooleanField(default=False)
+  s2_cell_id = models.CharField(max_length=255, blank=True)
+  s2_cell_nickname = models.CharField(max_length=255, blank=True)
+  s2_cell_eligible_count = models.PositiveSmallIntegerField(default=0)
   latest_ex_raid_at = models.DateTimeField(null=True, blank=True)
 
   def get_latest_ex_raid_display(self):
