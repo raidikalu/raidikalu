@@ -89,7 +89,12 @@ class RaidListView(BaseRaidView):
     return self.get(request, *args, **kwargs)
 
   def get_queryset(self):
-    return Raid.objects.exclude(end_at__lte=timezone.now()).select_related('gym').prefetch_related('attendances').order_by('start_at')
+    qs = Raid.objects.exclude(end_at__lte=timezone.now())
+    max_eligible_count = self.request.GET.get('cellmax', None)
+    if max_eligible_count:
+      max_eligible_count = int(max_eligible_count)
+      qs = qs.filter(gym__s2_cell_eligible_count__gt=0, gym__s2_cell_eligible_count__lte=max_eligible_count)
+    return qs.select_related('gym').prefetch_related('attendances').order_by('start_at')
 
   def get_context_data(self, **kwargs):
     context = super(RaidListView, self).get_context_data(**kwargs)
