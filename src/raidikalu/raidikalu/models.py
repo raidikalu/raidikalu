@@ -227,14 +227,13 @@ class Raid(TimestampedModel):
     return '\u2013'
 
   def get_unverified_text(self):
-    unverified_fields = []
-    if RaidVote.get_confidence(self, RaidVote.FIELD_POKEMON) < 3:
-      unverified_fields.append('monni')
-    if RaidVote.get_confidence(self, RaidVote.FIELD_TIER) < 3:
-      unverified_fields.append('taso')
-    if RaidVote.get_confidence(self, RaidVote.FIELD_START_AT) < 3:
-      unverified_fields.append('kellonaika')
-    return ', '.join(unverified_fields)
+    is_pokemon_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_POKEMON) < 3
+    is_tier_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_TIER) < 3
+    if is_pokemon_unverified and is_tier_unverified:
+      return 'raidin olemassaolo'
+    if is_pokemon_unverified:
+      return 'mikä Pokémon'
+    return ''
 
   def count_votes_and_update(self):
     tier = RaidVote.get_top_value(self, RaidVote.FIELD_TIER)
