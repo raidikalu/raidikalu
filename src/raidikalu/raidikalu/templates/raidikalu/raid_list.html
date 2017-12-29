@@ -98,8 +98,8 @@
           {% elif not raid.submitter and not raid.data_source_id %}
           <div class="raid-detail">Ilmoittaja: <strong>Anonyymi</strong></div>
           {% endif %}
-          {% if raid.verified_text %}
-          <div class="raid-detail">Vahvistettu: <strong>{{ raid.verified_text }}</strong></div>
+          {% if raid.unverified_text %}
+          <div class="raid-detail">Vahvistamatta: <strong>{{ raid.unverified_text }}</strong></div>
           {% endif %}
         </div>
         {% if raid.start_at %}

@@ -155,7 +155,7 @@ class Raid(TimestampedModel):
   gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE)
   submitter = models.CharField(max_length=255, blank=True)
   data_source = models.ForeignKey(DataSource, on_delete=models.SET_NULL, null=True, blank=True)
-  verified_text = models.CharField(max_length=255, blank=True)
+  unverified_text = models.CharField(max_length=255, blank=True)
   tier = models.PositiveSmallIntegerField(null=True, blank=True)
   pokemon_name = models.CharField(max_length=255, blank=True)
   pokemon_number = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -169,10 +169,7 @@ class Raid(TimestampedModel):
       self.tier = EditableSettings.get_tier_for_pokemon(self.pokemon_name)
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
     self.pokemon_number = get_pokemon_number_by_name(self.pokemon_name)
-    if RaidVote.get_confidence(self, RaidVote.FIELD_POKEMON) >= 3:
-      self.verified_text = 'monni'
-    elif RaidVote.get_confidence(self, RaidVote.FIELD_TIER) >= 3:
-      self.verified_text = 'taso'
+    self.unverified_text = self.get_unverified_text()
     Raid.objects.filter(end_at__lt=timezone.now()).delete()
     return super(Raid, self).save(*args, **kwargs)
 
@@ -228,6 +225,16 @@ class Raid(TimestampedModel):
     if self.tier == 5:
       return '\u2605\u2605\u2605\u2605\u2605'
     return '\u2013'
+
+  def get_unverified_text(self):
+    unverified_fields = []
+    if RaidVote.get_confidence(self, RaidVote.FIELD_POKEMON) < 3:
+      unverified_fields.append('monni')
+    if RaidVote.get_confidence(self, RaidVote.FIELD_TIER) < 3:
+      unverified_fields.append('taso')
+    if RaidVote.get_confidence(self, RaidVote.FIELD_START_AT) < 3:
+      unverified_fields.append('kellonaika')
+    return ', '.join(unverified_fields)
 
   def count_votes_and_update(self):
     tier = RaidVote.get_top_value(self, RaidVote.FIELD_TIER)
