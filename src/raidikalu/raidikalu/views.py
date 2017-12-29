@@ -322,6 +322,9 @@ class RaidReceiverView(View):
     gym = Gym.objects.get(pogo_id=raid_data.get('gym_id'))
     raid, created = Raid.objects.get_or_create(gym=gym)
 
+    if created:
+      raid.data_source = data_source
+
     for vote in votes:
       RaidVote.objects.get_or_create(raid=raid, data_source=data_source, vote_field=vote['vote_field'], defaults=vote)
 

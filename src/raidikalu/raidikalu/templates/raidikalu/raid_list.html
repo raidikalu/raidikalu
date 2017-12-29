@@ -87,6 +87,11 @@
           {% endif %}
           {% if raid.submitter %}
           <div class="raid-detail">Ilmoittaja: <strong>{{ raid.submitter }}</strong></div>
+          {% elif not raid.submitter and not raid.data_source_id %}
+          <div class="raid-detail">Ilmoittaja: <strong>Anonyymi</strong></div>
+          {% endif %}
+          {% if raid.verified_text %}
+          <div class="raid-detail">Vahvistettu: <strong>{{ raid.verified_text }}</strong></div>
           {% endif %}
           {% if raid.gym.is_park %}
           <div class="raid-detail">Puisto: <strong>todennäköisesti</strong>{% if raid.gym.s2_cell_id %} ({{ raid.gym.s2_cell_nickname }}{{ raid.gym.s2_cell_eligible_count }}){% endif %}</div>
