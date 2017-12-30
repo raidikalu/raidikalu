@@ -232,7 +232,7 @@ class Raid(TimestampedModel):
     if is_pokemon_unverified and is_tier_unverified:
       return 'raidin olemassaolo'
     if is_pokemon_unverified:
-      return 'mikä Pokémon'
+      return 'mikä monni'
     return ''
 
   def count_votes_and_update(self):
@@ -273,7 +273,7 @@ class RaidVote(TimestampedModel):
   FIELD_START_AT = 'start_at'
   FIELD_CHOICES = (
     (FIELD_TIER, 'Taso'),
-    (FIELD_POKEMON, 'Pokémon'),
+    (FIELD_POKEMON, 'Monni'),
     (FIELD_FAST_MOVE, 'Fast move'),
     (FIELD_CHARGE_MOVE, 'Charge move'),
     (FIELD_START_AT, 'Alkamisaika'),
