@@ -31,9 +31,6 @@
           {% if raid.fast_move %}
           <div class="raid-detail">Liikkeet: <strong>{{ raid.fast_move|default:"- - -" }} / {{ raid.charge_move|default:"- - -" }}</strong></div>
           {% endif %}
-          {% if raid.submitter %}
-          <div class="raid-detail">Ilmoittaja: <strong>{{ raid.submitter }}</strong></div>
-          {% endif %}
           {% if raid.gym.is_park %}
           <div class="raid-detail">Puisto: <strong>todennäköisesti</strong>{% if raid.gym.s2_cell_id %} ({{ raid.gym.s2_cell_nickname }}{{ raid.gym.s2_cell_eligible_count }}){% endif %}</div>
           {% endif %}
@@ -41,6 +38,14 @@
           <div class="raid-detail">Seuraava EX-raidi: <strong>{{ raid.gym.get_latest_ex_raid_display }}</strong></div>
           {% elif raid.gym.latest_ex_raid_at and raid.gym.latest_ex_raid_at <= now %}
           <div class="raid-detail">Edellinen EX-raidi: <strong>{{ raid.gym.get_latest_ex_raid_display }}</strong></div>
+          {% endif %}
+          {% if raid.submitter %}
+          <div class="raid-detail">Ilmoittaja: <strong>{{ raid.submitter }}</strong></div>
+          {% elif not raid.submitter and not raid.data_source_id %}
+          <div class="raid-detail">Ilmoittaja: <strong>Anonyymi</strong></div>
+          {% endif %}
+          {% if raid.unverified_text %}
+          <div class="raid-detail">Vahvistamatta: <strong>{{ raid.unverified_text }}</strong></div>
           {% endif %}
         </div>
         {% if raid.start_at %}
