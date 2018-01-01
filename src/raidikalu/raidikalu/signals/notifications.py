@@ -45,7 +45,7 @@ def notify_raid_slack(raid, webhook_url, channel=None):
   payload = {
     'username': 'Raidikalu',
     'icon_emoji': ':large_blue_circle:',
-    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name, raid.get_time_left_until_end_display(), raid.gym.name),
+    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name or raid.get_tier_display(), raid.get_time_left_until_end_display(), raid.gym.name),
     'unfurl_media': False,
     'attachments': [
       {
@@ -72,7 +72,7 @@ def notify_raid_discord(raid, webhook_url, channel=None):
   payload = {
     'username': 'Raidikalu',
     'icon_emoji': ':large_blue_circle:',
-    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name, raid.get_time_left_until_end_display(), raid.gym.name),
+    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name or raid.get_tier_display(), raid.get_time_left_until_end_display(), raid.gym.name),
     'unfurl_media': False,
     'attachments': [
       {
