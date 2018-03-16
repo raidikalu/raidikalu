@@ -15,27 +15,25 @@ ALLOWED_HOSTS = []
 ROOT_URLCONF = 'project.urls'
 
 INSTALLED_APPS = [
+  'raidikalu',
+
   'corsheaders',
 
   'django.contrib.admin',
   'django.contrib.auth',
   'django.contrib.contenttypes',
+  'django.contrib.humanize',
   'django.contrib.sessions',
   'django.contrib.messages',
-  # Disable Django's own staticfiles handling in favour of WhiteNoise, for
-  # greater consistency between gunicorn and `./manage.py runserver`. See:
-  # http://whitenoise.evans.io/en/stable/django.html#using-whitenoise-in-development
-  'whitenoise.runserver_nostatic',
   'django.contrib.staticfiles',
 
-  'django.contrib.humanize',
-
-  'raidikalu',
+  'channels',
 ]
 
 MIDDLEWARE = [
-  'corsheaders.middleware.CorsMiddleware',
   'django.middleware.security.SecurityMiddleware',
+  'corsheaders.middleware.CorsMiddleware',
+  'whitenoise.middleware.WhiteNoiseMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.middleware.common.CommonMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
@@ -56,12 +54,18 @@ TEMPLATES = [
         'django.template.context_processors.request',
         'django.contrib.auth.context_processors.auth',
         'django.contrib.messages.context_processors.messages',
+        'raidikalu.context_processors.settings_context',
       ],
     },
   },
 ]
 
-WSGI_APPLICATION = 'wsgi.application'
+CHANNEL_LAYERS = {
+  'default': {
+    'BACKEND': 'asgiref.inmemory.ChannelLayer',
+    'ROUTING': 'raidikalu.routing.channel_routing',
+  },
+}
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

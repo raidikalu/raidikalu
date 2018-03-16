@@ -9,6 +9,8 @@ RAVEN_CONFIG = {
   'dsn': os.environ.get('SENTRY_DSN', ''),
 }
 
+GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', None)
+
 INSTALLED_APPS += [
   'raven.contrib.django.raven_compat',
 ]
@@ -16,6 +18,16 @@ INSTALLED_APPS += [
 MIDDLEWARE = [
   'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
 ] + MIDDLEWARE
+
+CHANNEL_LAYERS = {
+  'default': {
+    'BACKEND': 'asgi_redis.RedisChannelLayer',
+    'CONFIG': {
+      'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+    },
+    'ROUTING': 'raidikalu.routing.channel_routing',
+  },
+}
 
 CACHES = {
   'default': {

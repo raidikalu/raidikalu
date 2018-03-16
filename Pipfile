@@ -4,7 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "==1.11.6"
+"asgi-redis" = "==1.4.3"
+channels = "==1.1.8"
+django = "==1.11.7"
 "dj-database-url" = "==0.4.2"
 "django-bmemcached" = "==0.2.3"
 "django-cors-headers" = "==2.1.0"
@@ -15,6 +17,9 @@ raven = "==6.2.1"
 requests = "==2.18.4"
 whitenoise = "==3.3.1"
 raidikalu = {path = "./src/raidikalu", editable = true}
+
+["dev-packages"]
+"pypiwin32" = "==220"
 
 [requires]
 python_version = "3.6"

@@ -15,13 +15,13 @@ def notify_raid(instance, created, **kwargs):
   should_notify = bool(raid.pokemon_name and RaidVote.get_confidence(raid, RaidVote.FIELD_POKEMON) >= 3)
   should_notify |= bool(raid.tier and RaidVote.get_confidence(raid, RaidVote.FIELD_TIER) >= 3)
   if should_notify:
-    check_notifications(raid)
+    check_raid_notifications(raid)
     already_notified_raid_ids.append(raid.pk)
     already_notified_raid_ids = already_notified_raid_ids[-100:]
     cache.set('already_notified_raid_ids', already_notified_raid_ids, 300 * 24 * 60 * 60)
 
 
-def check_notifications(raid):
+def check_raid_notifications(raid):
   editable_settings = EditableSettings.get_current_settings()
   already_notified_channels = []
   for notification in editable_settings.notifications:
@@ -36,16 +36,16 @@ def check_notifications(raid):
       continue
     already_notified_channels.append(channel_key)
     if notification['service'] == 'slack':
-      notify_slack(raid, webhook_url, channel)
+      notify_raid_slack(raid, webhook_url, channel)
     elif notification['service'] == 'discord':
-      notify_discord(raid, webhook_url, channel)
+      notify_raid_discord(raid, webhook_url, channel)
 
 
-def notify_slack(raid, webhook_url, channel=None):
+def notify_raid_slack(raid, webhook_url, channel=None):
   payload = {
     'username': 'Raidikalu',
     'icon_emoji': ':large_blue_circle:',
-    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name, raid.get_time_left_until_end_display(), raid.gym.name),
+    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name or raid.get_tier_display(), raid.get_time_left_until_end_display(), raid.gym.name),
     'unfurl_media': False,
     'attachments': [
       {
@@ -68,11 +68,11 @@ def notify_slack(raid, webhook_url, channel=None):
   requests.post(webhook_url, json=payload)
 
 
-def notify_discord(raid, webhook_url, channel=None):
+def notify_raid_discord(raid, webhook_url, channel=None):
   payload = {
     'username': 'Raidikalu',
     'icon_emoji': ':large_blue_circle:',
-    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name, raid.get_time_left_until_end_display(), raid.gym.name),
+    'text': '%s - %s jäljellä - %s' % (raid.pokemon_name or raid.get_tier_display(), raid.get_time_left_until_end_display(), raid.gym.name),
     'unfurl_media': False,
     'attachments': [
       {

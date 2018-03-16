@@ -2,8 +2,11 @@
 import json
 import logging
 import re
+from base64 import b64encode
 from calendar import timegm
 from datetime import timedelta, datetime
+from django.core.cache import cache
+from django.db.models.signals import post_save, pre_delete
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
@@ -11,30 +14,136 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
-from raidikalu.models import EditableSettings, Gym, Raid, DataSource, RaidVote
+from raidikalu.messages import attendance_updated
+from raidikalu.models import EditableSettings, Gym, Raid, DataSource, RaidVote, Attendance
+from raidikalu.utils import get_nickname
 
 
 LOG = logging.getLogger(__name__)
 
 
-class RaidListView(TemplateView):
+class BaseRaidView(TemplateView):
+  def update_raid_context(self, raid):
+    nickname = get_nickname(self.request)
+    setattr(raid, 'own_start_time_choice', None)
+    start_times_with_attendances = []
+    raid_attendances = raid.attendances.all()
+    for choice_index, start_time_choice in enumerate(raid.get_start_time_choices()):
+      attendances_at_time = []
+      for attendance in raid_attendances:
+        if attendance.start_time_choice == choice_index:
+          attendances_at_time.append(attendance)
+          if attendance.submitter == nickname:
+            setattr(raid, 'own_start_time_choice', choice_index)
+      start_times_with_attendances.append({
+        'time': start_time_choice,
+        'attendances': attendances_at_time,
+      })
+    setattr(raid, 'start_times_with_attendances', start_times_with_attendances)
+    setattr(raid, 'attendance_count', len(raid_attendances))
+
+
+class RaidListView(BaseRaidView):
   template_name = 'raidikalu/raid_list.html'
+  NICKNAME_CLEANUP_REGEX = re.compile(r'[^A-Za-z0-9]+')
 
   def post(self, request, *args, **kwargs):
     action = request.POST.get('action', None)
+
     if action == 'set-nickname':
-      request.session['nickname'] = request.POST.get('nickname', None)
+      nickname = request.POST.get('nickname', None)
+      nickname = self.NICKNAME_CLEANUP_REGEX.sub('', nickname)
+      nickname = nickname[:16]
+      old_nickname = get_nickname(request)
+      if old_nickname.startswith('Anonyymi '):
+        Attendance.objects.filter(submitter=old_nickname).update(submitter=nickname)
+      request.session['nickname'] = nickname
+      return HttpResponse('OK')
+
+    if action == 'set-attendance':
+      nickname = get_nickname(request)
+      raid = get_object_or_404(Raid, pk=request.POST.get('raid', None))
+      choice = request.POST.get('choice', '')
+      if choice == 'cancel':
+        try:
+          attendance = Attendance.objects.get(raid=raid, submitter=nickname)
+          attendance.start_time_choice = None
+          attendance_updated(attendance, raid)
+          attendance.delete()
+        except Attendance.DoesNotExist:
+          return HttpResponse('fail')
+        return HttpResponse('OK')
+      try:
+        choice = int(choice)
+      except ValueError:
+        return HttpResponse('fail')
+      start_time_choices = raid.get_start_time_choices()
+      if choice < 0 or choice >= len(start_time_choices):
+        return HttpResponse('fail')
+      attendance, created = Attendance.objects.get_or_create(raid=raid, submitter=nickname, defaults={'start_time_choice': choice})
+      if not created:
+        attendance.start_time_choice = choice
+        attendance.save()
+      attendance_updated(attendance, raid)
       return HttpResponse('OK')
     return self.get(request, *args, **kwargs)
 
   def get_queryset(self):
-    return Raid.objects.exclude(end_at__lte=timezone.now()).select_related('gym').order_by('start_at')
+    qs = Raid.objects.exclude(end_at__lte=timezone.now())
+    max_eligible_count = self.request.GET.get('cellmax', None)
+    if max_eligible_count:
+      max_eligible_count = int(max_eligible_count)
+      qs = qs.filter(gym__s2_cell_eligible_count__gt=0, gym__s2_cell_eligible_count__lte=max_eligible_count)
+    return qs.select_related('gym').prefetch_related('attendances').order_by('start_at')
 
   def get_context_data(self, **kwargs):
     context = super(RaidListView, self).get_context_data(**kwargs)
     context['editable_settings'] = EditableSettings.get_current_settings()
     context['raids'] = self.get_queryset()
+    context['request_nickname'] = get_nickname(self.request)
+    context['now'] = timezone.now()
+    for raid in context['raids']:
+      self.update_raid_context(raid)
     return context
+
+
+class RaidSnippetView(BaseRaidView):
+  template_name = 'raidikalu/raid_snippet.html'
+  CACHE_TIMEOUT = 2 * 60 * 60
+
+  def dispatch(self, request, **kwargs):
+    raid_pk = self.kwargs.get('pk')
+    cache_key = 'raid_snippet_response_%s' % raid_pk
+    response = cache.get(cache_key)
+    if response:
+      return response
+    self.raid = get_object_or_404(Raid, pk=raid_pk)
+    response = super(RaidSnippetView, self).dispatch(request, **kwargs)
+    if hasattr(response, 'render') and callable(response.render):
+      response.add_post_render_callback(lambda r: cache.set(cache_key, r, self.CACHE_TIMEOUT))
+    else:
+      cache.set(cache_key, response, self.CACHE_TIMEOUT)
+    return response
+
+  def get_context_data(self, **kwargs):
+    context = super(RaidSnippetView, self).get_context_data(**kwargs)
+    self.update_raid_context(self.raid)
+    context['raid'] = self.raid
+    context['now'] = timezone.now()
+    return context
+
+def invalidate_raid_snippet_from_raid(instance, **kwargs):
+  cache_key = 'raid_snippet_response_%s' % instance.pk
+  cache.delete(cache_key)
+
+def invalidate_raid_snippet_from_attendance(instance, **kwargs):
+  cache_key = 'raid_snippet_response_%s' % instance.raid_id
+  cache.delete(cache_key)
+
+post_save.connect(invalidate_raid_snippet_from_raid, sender='raidikalu.Raid')
+post_save.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
+pre_delete.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
+
 
 
 class RaidCreateView(TemplateView):
@@ -49,6 +158,9 @@ class RaidCreateView(TemplateView):
     gym_id = request.POST.get('gym', None)
     gym = get_object_or_404(Gym, pk=gym_id)
     raid, created = Raid.objects.get_or_create(gym=gym)
+
+    if created:
+      raid.submitter = request.session.get('nickname', None) or ''
 
     votes = []
 
@@ -209,6 +321,9 @@ class RaidReceiverView(View):
 
     gym = Gym.objects.get(pogo_id=raid_data.get('gym_id'))
     raid, created = Raid.objects.get_or_create(gym=gym)
+
+    if created:
+      raid.data_source = data_source
 
     for vote in votes:
       RaidVote.objects.get_or_create(raid=raid, data_source=data_source, vote_field=vote['vote_field'], defaults=vote)

@@ -2,11 +2,14 @@
 import json
 import logging
 from datetime import timedelta, datetime
+from math import floor
 from django.db import models
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.utils import timezone
+from django.utils.dateformat import format as date_format
 from raidikalu import settings
 from raidikalu.pokedex import get_pokemon_number_by_name
+from raidikalu.utils import format_timedelta
 
 
 LOG = logging.getLogger(__name__)
@@ -28,6 +31,7 @@ class EditableSettings(models.Model):
   expires_at = models.DateTimeField()
   raid_types_json = models.TextField()
   notifications_json = models.TextField()
+  additional_information = models.TextField(blank=True)
   _current_settings = None
 
   def __init__(self, *args, **kwargs):
@@ -97,6 +101,39 @@ class Gym(TimestampedModel):
   latitude = models.DecimalField(max_digits=9, decimal_places=6)
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
+  is_park = models.BooleanField(default=False)
+  s2_cell_id = models.CharField(max_length=255, blank=True)
+  s2_cell_nickname = models.CharField(max_length=255, blank=True)
+  s2_cell_eligible_count = models.PositiveSmallIntegerField(default=0)
+  latest_ex_raid_at = models.DateTimeField(null=True, blank=True)
+
+  def get_latest_ex_raid_display(self):
+    today = timezone.now().date()
+    ex_raid_day = self.latest_ex_raid_at.date()
+    days_difference = (ex_raid_day - today).days
+    weeks = floor(abs(days_difference) / 7)
+    if days_difference == 0:
+      return 'tänään'
+    elif days_difference == 1:
+      return 'huomenna'
+    elif days_difference == 2:
+      return 'ylihuomenna'
+    elif 2 < days_difference < 7:
+      return '%s päivän päästä' % days_difference
+    elif 7 <= days_difference < 12:
+      return 'viikon päästä'
+    elif days_difference == -1:
+      return 'eilen'
+    elif days_difference == -2:
+      return 'toissapäivänä'
+    elif -2 > days_difference > -7:
+      return '%s päivää sitten' % abs(days_difference)
+    elif -7 >= days_difference > -14:
+      return 'viikko sitten'
+    elif days_difference <= -14:
+      return '%s viikkoa sitten' % weeks
+    else:
+      return date_format(self.latest_ex_raid_at, 'j.n.Y')
 
   def __str__(self):
     return self.name
@@ -116,6 +153,9 @@ class Raid(TimestampedModel):
   RAID_DURATION = RAID_EGG_DURATION + RAID_BATTLE_DURATION
 
   gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE)
+  submitter = models.CharField(max_length=255, blank=True)
+  data_source = models.ForeignKey(DataSource, on_delete=models.SET_NULL, null=True, blank=True)
+  unverified_text = models.CharField(max_length=255, blank=True)
   tier = models.PositiveSmallIntegerField(null=True, blank=True)
   pokemon_name = models.CharField(max_length=255, blank=True)
   pokemon_number = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -129,7 +169,8 @@ class Raid(TimestampedModel):
       self.tier = EditableSettings.get_tier_for_pokemon(self.pokemon_name)
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
     self.pokemon_number = get_pokemon_number_by_name(self.pokemon_name)
-    Raid.objects.filter(Q(end_at__lt=timezone.now()) | Q(created_at__lt=timezone.now() - Raid.RAID_DURATION)).delete()
+    self.unverified_text = self.get_unverified_text()
+    Raid.objects.filter(end_at__lt=timezone.now()).delete()
     return super(Raid, self).save(*args, **kwargs)
 
   @property
@@ -153,6 +194,25 @@ class Raid(TimestampedModel):
   def get_time_left_until_end_display(self):
     return format_timedelta(self.get_time_left_until_end()) if self.end_at else '\u2013'
 
+  def get_start_time_choices(self):
+    start_time_choices = []
+    if self.start_at:
+      # The first start time choice should be at least 5 minutes in the future
+      # So we choose the initial offset based on that
+      if self.start_at.minute % 10 > 5:
+        start_offset_minutes = 15 - self.start_at.minute % 10
+      else:
+        start_offset_minutes = 10 - self.start_at.minute % 10
+      start_offset = self.start_at + timedelta(minutes=start_offset_minutes)
+      start_time_choices = [
+        self.start_at,
+        start_offset,
+        start_offset + timedelta(minutes=10),
+        start_offset + timedelta(minutes=20),
+        start_offset + timedelta(minutes=30),
+      ]
+    return start_time_choices
+
   def get_tier_display(self):
     if self.tier == 1:
       return '\u2605'
@@ -165,6 +225,15 @@ class Raid(TimestampedModel):
     if self.tier == 5:
       return '\u2605\u2605\u2605\u2605\u2605'
     return '\u2013'
+
+  def get_unverified_text(self):
+    is_pokemon_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_POKEMON) < 3
+    is_tier_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_TIER) < 3
+    if is_pokemon_unverified and is_tier_unverified:
+      return 'raidin olemassaolo'
+    if is_pokemon_unverified:
+      return 'mikä monni'
+    return ''
 
   def count_votes_and_update(self):
     tier = RaidVote.get_top_value(self, RaidVote.FIELD_TIER)
@@ -204,13 +273,13 @@ class RaidVote(TimestampedModel):
   FIELD_START_AT = 'start_at'
   FIELD_CHOICES = (
     (FIELD_TIER, 'Taso'),
-    (FIELD_POKEMON, 'Pokémon'),
+    (FIELD_POKEMON, 'Monni'),
     (FIELD_FAST_MOVE, 'Fast move'),
     (FIELD_CHARGE_MOVE, 'Charge move'),
     (FIELD_START_AT, 'Alkamisaika'),
   )
   raid = models.ForeignKey(Raid, related_name='votes', on_delete=models.CASCADE)
-  submitter = models.CharField(max_length=255)
+  submitter = models.CharField(max_length=255, blank=True)
   vote_field = models.CharField(max_length=255, choices=FIELD_CHOICES)
   vote_value = models.CharField(max_length=255)
   data_source = models.ForeignKey(DataSource, on_delete=models.CASCADE, null=True, blank=True)
@@ -254,16 +323,7 @@ class RaidVote(TimestampedModel):
 class Attendance(TimestampedModel):
   raid = models.ForeignKey(Raid, related_name='attendances', on_delete=models.CASCADE)
   submitter = models.CharField(max_length=255)
-  attendee_count = models.PositiveSmallIntegerField(default=1)
-  estimated_arrival_at = models.DateTimeField(default=timezone.now)
-  has_arrived = models.BooleanField(default=False)
-  has_finished = models.BooleanField(default=False)
+  start_time_choice = models.PositiveSmallIntegerField()
 
   def __str__(self):
     return '%s // ' % self.raid
-
-
-def format_timedelta(timedelta_obj):
-  hours, remainder = divmod(timedelta_obj.seconds, 3600)
-  minutes, seconds = divmod(remainder, 60)
-  return '%02d:%02d:%02d' % (hours, minutes, seconds)

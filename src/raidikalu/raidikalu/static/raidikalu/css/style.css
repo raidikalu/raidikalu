@@ -6,18 +6,26 @@ html, body {
   margin-left: auto;
   margin-right: auto;
 }
+body {
+  padding-bottom: 70vh;
+}
 * {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   box-sizing: border-box;
+}
+a {
+  color: #7E57C2;
+  text-decoration: none;
 }
 .btn {
   display: inline-block;
   padding: 5px 10px;
   border: 0;
   border-radius: 20px;
-  font-size: 14px;
+  font: inherit;
+  font-size: 12px;
   color: #fff;
-  background: #9CCC65;
+  background: #7E57C2;
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -29,7 +37,8 @@ hr {
   margin: 50px auto;
 }
 .pfc,
-.styled-checkable-input {
+.styled-checkable-input,
+.clipboard-input {
   position: absolute;
   width: 0;
   height: 0;
@@ -55,13 +64,33 @@ hr {
   font-size: 36px;
   text-decoration: none;
   color: #ccc;
-  background-color: #9CCC65;
+  background-color: #7E57C2;
   border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0,0,0,.2);
   outline: none;
 }
 .new-raid-link:visited {
   color: #f9f9f9;
+}
+.refresh-button {
+  display: none;
+  position: fixed;
+  right: 108px;
+  bottom: 25px;
+  width: 48px;
+  height: 48px;
+  font-size: 18px;
+  line-height: 48px;
+  text-align: center;
+  vertical-align: top;
+  color: #fff;
+  background-color: #7E57C2;
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,.2);
+  outline: none;
+  cursor: pointer;
+  z-index: 2;
 }
 @media (max-width: 959px) {
   .main-container,
@@ -86,9 +115,12 @@ hr {
   .new-raid-link-label {
     display: none;
   }
+  .refresh-button {
+    display: block;
+  }
 }
 .new-raid-link:focus {
-  background-color: #AED581;
+  background-color: #9575CD;
 }
 .new-raid-link:before,
 .new-raid-link:after {
@@ -129,13 +161,15 @@ hr {
   display: inline-block;
   vertical-align: middle;
 }
-.trainer-nickname-target-frame {
-  position: absolute;
-  opacity: 0;
-  pointer-events: 0;
-  width: 0;
-  height: 0;
-  bottom: 110%;
+.trainer-nickname-btn {
+  position: relative;
+  display: none;
+  float: right;
+  margin: 3px 0 0 -40px;
+  z-index: 2;
+}
+.trainer-nickname-input:focus + .trainer-nickname-btn {
+  display: block;
 }
 .form-control {
   width: 100%;
@@ -169,8 +203,8 @@ hr {
   padding: 5px 10px;
   border-radius: 20px;
   font-size: 12px;
-  color: #fff;
-  background: #bbb;
+  color: #333;
+  background: #eee;
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -183,6 +217,9 @@ hr {
 }
 .pfc:checked + .pfl:after {
   content: ": joo";
+}
+.pfc:checked + .pfl {
+  color: #fff;
 }
 .pfc:checked + .pfl.pft5 {
   background-color: #7E57C2;
@@ -206,9 +243,18 @@ hr {
   border-radius: 3px;
   box-shadow: 0 2px 10px rgba(0,0,0,.3);
   background: #fff;
-  min-height: 105px;
-  padding: 10px 50px 10px 80px;
   margin-bottom: 10px;
+}
+.raid-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: -5px;
+}
+.raid-main {
+  position: relative;
+  padding: 10px 50px 10px 80px;
+  min-height: 105px;
 }
 .raid-icon {
   position: absolute;
@@ -233,10 +279,25 @@ hr {
 .raid-tier {
   position: absolute;
   top: 65px;
-  left: 15px;
-  width: 50px;
+  left: 0;
+  width: 80px;
   text-align: center;
   font-size: 12px;
+}
+[data-tier="5"] .raid-tier {
+  color: #7e57c2;
+}
+[data-tier="4"] .raid-tier {
+  color: #b71c1c;
+}
+[data-tier="3"] .raid-tier {
+  color: #F57F17;
+}
+[data-tier="2"] .raid-tier {
+  color: #33691E;
+}
+[data-tier="1"] .raid-tier {
+  color: #0D47A1;
 }
 .raid-pokemon {
   position: absolute;
@@ -245,24 +306,10 @@ hr {
   width: 80px;
   text-align: center;
   font-size: 12px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-}
-.raid-moveset {
-  position: absolute;
-  top: 0;
-  left: 100%;
-  width: auto;
-  height: auto;
-  white-space: nowrap;
-  color: #ddd;
-}
-.moveset-checkbox:checked + .raid-moveset {
-  color: #333;
 }
 .raid-name {
   position: relative;
+  min-height: 64px;
   z-index: 1;
   box-shadow: 0 0 5px 3px #fff;
   background: #fff;
@@ -308,6 +355,72 @@ hr {
 }
 .raid-directions-link {
   top: 54px;
+}
+.raid-extra {
+  display: none;
+  position: relative;
+  padding: 0 10px 10px 10px;
+}
+.raid-toggle:checked ~ .raid-extra {
+  display: block;
+}
+.raid-toggle:checked ~ .raid-main .raid-map-link,
+.raid-toggle:checked ~ .raid-main .raid-directions-link {
+  color: #fff;
+}
+.raid-toggle:checked ~ .raid-main .raid-map-link:before,
+.raid-toggle:checked ~ .raid-main .raid-directions-link:before {
+  background-color: #7E57C2;
+}
+.raid-details {
+  font-size: 12px;
+  margin-bottom: 7px;
+}
+.raid-detail {
+  margin-bottom: 2px;
+}
+.raider-attendance-choices {
+  margin-top: 15px;
+}
+.raider-attendance-choices .btn {
+  margin: 5px 5px 0 0;
+  background: #f0f0f0;
+  color: #333;
+}
+.raider-attendance-choices .styled-checkable-input:checked + .btn {
+  background-color: #7E57C2;
+  color: #fff;
+}
+.raider-attendance-choices .raid-attandance-cancel + .btn {
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.raider-attendance-choices .styled-checkable-input:checked ~ .raid-attandance-cancel + .btn {
+  opacity: 1;
+}
+.raid-attendees {
+  display: inline-block;
+  width: auto;
+  margin: 10px 10px 0 0;
+  vertical-align: top;
+}
+.raid-attendee {
+  font-size: 12px;
+}
+.sharing-links {
+  font-size: 12px;
+  opacity: .7;
+}
+.sharing-links div {
+  margin: 10px 0 -10px 0;
+}
+.sharing-links a {
+  display: inline-block;
+  padding-top: 10px;
+}
+.additional-information {
+  margin-top: 50px;
+  font-size: 12px;
 }
 .gym-choices {
   margin-top: 30px;
@@ -410,7 +523,7 @@ hr {
 #raid-time-field-type-2:checked ~ div [for="raid-time-field-type-2"],
 #raid-time-value-type-1:checked ~ div [for="raid-time-value-type-1"],
 #raid-time-value-type-2:checked ~ div [for="raid-time-value-type-2"] {
-  background-color: #9CCC65;
+  background-color: #7E57C2;
 }
 .raid-time-input-label {
   font-size: 24px;
@@ -459,7 +572,7 @@ hr {
   }
 }
 .styled-checkable-input:checked + .raid-boss-input-label {
-  background-color: #9CCC65;
+  background-color: #9575CD;
 }
 .raid-boss-input-label-tier-1 {
   background-image: url(../img/egg-tier-1.png);

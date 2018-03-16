@@ -5,7 +5,7 @@ Omalle koneelle tän saa pystyyn tälleen:
 From here on we'll be using English because reasons
 
 - Get python and pipenv
-- `pipenv install` to set up development environment and install all dependencies
+- `pipenv install --dev` to set up development environment and install all dependencies
 - `pipenv shell` to get access to the development environment and dependencies
 - Make a copy of `local_settings.py.tpl` and remove the `.tpl`. You can edit this for your needs
 - Append `--settings=local_settings` to all `manage.py` commands **or** set `DJANGO_SETTINGS_MODULE=local_settings` in your environment variables
