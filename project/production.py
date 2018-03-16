@@ -1,5 +1,6 @@
 
 import os
+import re
 from project.settings import *
 
 
@@ -18,6 +19,10 @@ INSTALLED_APPS += [
 MIDDLEWARE = [
   'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
 ] + MIDDLEWARE
+
+IGNORABLE_404_URLS = (
+  re.compile('api/1/raid-snippet/[^/]+/'),
+)
 
 CHANNEL_LAYERS = {
   'default': {
@@ -61,7 +66,7 @@ LOGGING = {
     'console': {
       'class': 'logging.StreamHandler',
       'formatter': 'verbose',
-      'level': 'DEBUG',
+      'level': 'WARNING',
     },
   },
   'loggers': {
