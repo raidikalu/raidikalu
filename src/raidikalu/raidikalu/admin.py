@@ -3,9 +3,9 @@ from raidikalu.models import EditableSettings, Gym, GymNickname, Raid, DataSourc
 
 
 class GymAdmin(admin.ModelAdmin):
-  list_display = ('name', 'is_park', 'latest_ex_raid_at', 's2_cell_id', 's2_cell_eligible_count')
-  list_filter = ('is_park', 's2_cell_id')
-  search_fields = ('name', 's2_cell_id')
+  list_display = ('name', 'is_park')
+  list_filter = ('is_park',)
+  search_fields = ('name',)
 
 
 admin.site.register(EditableSettings)
