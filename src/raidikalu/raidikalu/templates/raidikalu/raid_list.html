@@ -156,7 +156,7 @@
           return;
         }
 
-        var selectedPokemonData = localStorage.getItem('selected-pokemon-v{{ editable_settings.pk }}') || '[{% for raid_type in editable_settings.raid_types %}"{{ raid_type.pokemon }}"{% if not forloop.last %},{% endif %}{% endfor %}]';
+        var selectedPokemonData = localStorage.getItem('selected-pokemon-v{{ editable_settings.expires_at|date:"YmdHi" }}') || '[{% for raid_type in editable_settings.raid_types %}"{{ raid_type.pokemon }}"{% if not forloop.last %},{% endif %}{% endfor %}]';
         var selectedPokemon = JSON.parse(selectedPokemonData) || [];
 
         Array.prototype.slice.call(document.querySelectorAll('.pfc')).forEach(initFilters);
@@ -191,11 +191,11 @@
 
           if (checkbox.checked && indexOfPokemon === -1) {
             selectedPokemon.push(pokemon);
-            localStorage.setItem('selected-pokemon-v{{ editable_settings.pk }}', JSON.stringify(selectedPokemon));
+            localStorage.setItem('selected-pokemon-v{{ editable_settings.expires_at|date:"YmdHi" }}', JSON.stringify(selectedPokemon));
           }
           if ( ! checkbox.checked && indexOfPokemon !== -1) {
             selectedPokemon.splice(indexOfPokemon, 1);
-            localStorage.setItem('selected-pokemon-v{{ editable_settings.pk }}', JSON.stringify(selectedPokemon));
+            localStorage.setItem('selected-pokemon-v{{ editable_settings.expires_at|date:"YmdHi" }}', JSON.stringify(selectedPokemon));
           }
 
         }
