@@ -25,8 +25,6 @@
       <div class="raid-form">
         <label for="gym-choice-radio-0" class="btn gym-choice-none-label">Vaihda salia</label>
         <hr />
-        <button type="submit" class="btn raid-form-submit">Ilmoita raidi</button>
-        <hr />
         <input id="raid-time-field-type-1" class="styled-checkable-input" type="radio" name="raid-time-field-type" value="start" checked />
         <input id="raid-time-field-type-2" class="styled-checkable-input" type="radio" name="raid-time-field-type" value="end" />
         <input id="raid-time-value-type-1" class="styled-checkable-input" type="radio" name="raid-time-value-type" value="absolute" checked />
@@ -73,6 +71,8 @@
           <label for="raid-boss-input-checkbox-{{ raid_type.pokemon_number }}" class="raid-boss-input-label" style="background-image: url({{ raid_type.pokemon_image }});"></label>{% endfor %}
         </div>
         {% endfor %}
+        <hr />
+        <button type="submit" class="btn raid-form-submit">Ilmoita raidi</button>
         <hr />
       </div>
     </form>
