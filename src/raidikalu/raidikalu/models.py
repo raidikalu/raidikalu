@@ -102,38 +102,7 @@ class Gym(TimestampedModel):
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
   is_park = models.BooleanField(default=False)
-  s2_cell_id = models.CharField(max_length=255, blank=True)
-  s2_cell_nickname = models.CharField(max_length=255, blank=True)
-  s2_cell_eligible_count = models.PositiveSmallIntegerField(default=0)
-  latest_ex_raid_at = models.DateTimeField(null=True, blank=True)
-
-  def get_latest_ex_raid_display(self):
-    today = timezone.now().date()
-    ex_raid_day = self.latest_ex_raid_at.date()
-    days_difference = (ex_raid_day - today).days
-    weeks = floor(abs(days_difference) / 7)
-    if days_difference == 0:
-      return 'tänään'
-    elif days_difference == 1:
-      return 'huomenna'
-    elif days_difference == 2:
-      return 'ylihuomenna'
-    elif 2 < days_difference < 7:
-      return '%s päivän päästä' % days_difference
-    elif 7 <= days_difference < 12:
-      return 'viikon päästä'
-    elif days_difference == -1:
-      return 'eilen'
-    elif days_difference == -2:
-      return 'toissapäivänä'
-    elif -2 > days_difference > -7:
-      return '%s päivää sitten' % abs(days_difference)
-    elif -7 >= days_difference > -14:
-      return 'viikko sitten'
-    elif days_difference <= -14:
-      return '%s viikkoa sitten' % weeks
-    else:
-      return date_format(self.latest_ex_raid_at, 'j.n.Y')
+  is_active = models.BooleanField(default=True)
 
   def __str__(self):
     return self.name

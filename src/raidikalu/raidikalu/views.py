@@ -145,7 +145,6 @@ post_save.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Att
 pre_delete.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
 
 
-
 class RaidCreateView(TemplateView):
   template_name = 'raidikalu/raid_create.html'
   ABSOLUTE_TIME_REGEX = re.compile(r'^(?P<hours>\d?\d).?(?P<minutes>\d\d)$')
@@ -237,7 +236,7 @@ class RaidCreateView(TemplateView):
   def get_context_data(self, **kwargs):
     context = super(RaidCreateView, self).get_context_data(**kwargs)
     context['editable_settings'] = EditableSettings.get_current_settings()
-    context['gyms'] = Gym.objects.all().order_by('name').prefetch_related('nicknames')
+    context['gyms'] = Gym.objects.filter(is_active=True).order_by('name').prefetch_related('nicknames')
     return context
 
 
@@ -329,4 +328,22 @@ class RaidReceiverView(View):
       RaidVote.objects.get_or_create(raid=raid, data_source=data_source, vote_field=vote['vote_field'], defaults=vote)
 
     raid.count_votes_and_update()
+    return HttpResponse('OK')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GymReceiverView(View):
+  def post(self, request, *args, **kwargs):
+    data_source_api_key = self.kwargs.get('api_key')
+    data_source = DataSource.objects.get(api_key=data_source_api_key)
+    gym_data = json.loads(request.body)
+
+    gym, created = Gym.objects.get_or_create(pogo_id=gym_data['guid'], defaults={
+      'name': gym_data['name'],
+      'latitude': gym_data['latitude'],
+      'longitude': gym_data['longitude'],
+      'image_url': gym_data['image_url'].replace('http://', 'https://'),
+      'is_active': False,
+    })
+
     return HttpResponse('OK')
