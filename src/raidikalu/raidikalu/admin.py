@@ -3,8 +3,8 @@ from raidikalu.models import EditableSettings, Gym, GymNickname, Raid, DataSourc
 
 
 class GymAdmin(admin.ModelAdmin):
-  list_display = ('name', 'is_park')
-  list_filter = ('is_park',)
+  list_display = ('name', 'is_park', 'is_active')
+  list_filter = ('is_park', 'is_active')
   search_fields = ('name',)
 
 
