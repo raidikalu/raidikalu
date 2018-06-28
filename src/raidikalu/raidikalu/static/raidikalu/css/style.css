@@ -501,6 +501,10 @@ hr {
 .gym-choice-none-label {
   margin: 10px;
 }
+.gym-choice.selected-gym {
+  background: pink;
+  border-radius: 16px;
+}
 .raid-form-submit {
   font-size: 24px;
   padding: 10px 15px;
