@@ -6,7 +6,7 @@
       <h1>Ilmoita raidi</h1>
       <input id="gym-choice-radio-0" class="gym-choice-radio gym-choice-none styled-checkable-input" type="radio" name="gym" value="" checked />
 
-      <input class="form-control gym-search-filter" placeholder="Salin nimi" />
+      <input class="form-control gym-search-filter" placeholder="Salin nimi" autofocus />
 
       <div class="gym-choices">
         {% for gym in gyms %}
@@ -83,8 +83,22 @@
         var gymChoiceElements = document.querySelectorAll('.gym-choice');
         var debouncedFilterGymChoices = throttle(filterGymChoices, 200);
 
-        document.querySelector('.gym-search-filter').addEventListener('input', handleSearchInput);
-        document.querySelector('.gym-search-filter').addEventListener('keydown', handleSearchKeyDown);
+        var visibleGyms = [];
+        var navigatedGym = undefined;
+
+        var gymSearchFilterElement = document.querySelector('.gym-search-filter');
+        gymSearchFilterElement.addEventListener('input', handleSearchInput);
+        gymSearchFilterElement.addEventListener('keydown', handleSearchKeyDown);
+        document.addEventListener('keydown', handleNavigationKeyDown);
+
+        document.querySelectorAll('.gym-choice-radio').forEach(function (radio) {
+          radio.addEventListener('change', function() {
+            gymSelected();
+          });
+        });
+        document.getElementById('gym-choice-radio-0').addEventListener('change', function() {
+          gymSearchFilterElement.focus();
+        });
 
         function handleSearchInput(event) {
 
@@ -104,6 +118,9 @@
           var gymChoiceElement;
           var i;
 
+          visibleGyms = [];
+          navigatedGym = undefined;
+
           for (i = 0; i < length; i++) {
             gymChoiceElement = gymChoiceElements[i];
             if ( ! gymChoiceElement.dataGymName) {
@@ -111,20 +128,102 @@
             }
             if (gymChoiceElement.dataGymName.indexOf(query) !== -1) {
               gymChoiceElement.style.display = '';
+              visibleGyms.push(gymChoiceElement);
             }
             else {
               gymChoiceElement.style.display = 'none';
             }
           }
 
+          if (visibleGyms.length === 1) {
+              select(0)
+          }
+        }
+
+        function gymSelected() {
+          deSelect(navigatedGym);
+          navigatedGym = undefined;
+
+          var input = document.getElementById('raid-time-field');
+          input.focus();
+        }
+
+        function deSelect(index) {
+          if (index !== undefined) {
+            visibleGyms[index].classList.remove('selected-gym')
+          }
+        }
+
+        function select(index) {
+          navigatedGym = index;
+          if (index !== undefined) {
+            visibleGyms[index].classList.add('selected-gym')
+          }
         }
 
         function handleSearchKeyDown(event) {
-
-          if (event.keyCode === 13) {
+          if (event.keyCode === 13) { // Enter
             event.preventDefault();
           }
-
+          else if (event.keyCode === 40) { // Down
+            event.preventDefault();
+            if (navigatedGym === undefined && visibleGyms.length > 0) {
+              select(0)
+            }
+            if (navigatedGym !== undefined) {
+              gymSearchFilterElement.blur();
+            }
+          }
+        }
+        function handleNavigationKeyDown(event) {
+          if (event.keyCode === 13) { // Enter
+            if (navigatedGym !== undefined) {
+              event.preventDefault();
+              var input = document.getElementById(visibleGyms[navigatedGym].htmlFor);
+              input.checked = true;
+              gymSelected();
+            }
+          }
+          else if (event.keyCode === 38) { // Up
+            if (navigatedGym !== undefined) {
+              event.preventDefault();
+              deSelect(navigatedGym)
+              select(undefined);
+              var textSize = gymSearchFilterElement.value.length;
+              if (gymSearchFilterElement.setSelectionRange) {
+                gymSearchFilterElement.focus();
+                gymSearchFilterElement.setSelectionRange(textSize, textSize);
+                setTimeout(function() {
+                  gymSearchFilterElement.setSelectionRange(textSize, textSize);
+                }, 0);
+              } else if (gymSearchFilterElement.createTextRange) {
+                var range = gymSearchFilterElement.createTextRange()
+                range.collapse(true);
+                range.moveEnd('character', textSize);
+                range.moveStart('character', textSize);
+                range.select(true);
+              }
+            }
+          }
+          else if (event.keyCode === 40) { // Down
+            if (navigatedGym !== undefined) {
+              event.preventDefault();
+            };
+          }
+          else if (event.keyCode === 37) { // Left
+            if (navigatedGym !== undefined && navigatedGym > 0) {
+              event.preventDefault();
+              deSelect(navigatedGym)
+              select(navigatedGym - 1)
+            }
+          }
+          else if (event.keyCode === 39) { // Right
+            if (navigatedGym !== undefined && (navigatedGym + 1) < visibleGyms.length) {
+              event.preventDefault();
+              deSelect(navigatedGym)
+              select(navigatedGym + 1)
+            }
+          }
         }
 
         function throttle(fn, threshold, scope) {
