@@ -114,7 +114,9 @@ function initMessageListeners() {
     }
 
     if (payload.data.raid) {
-      raidName = document.querySelector('.raid[data-id="' + payload.data.raid + '"] .raid-name').textContent;
+      try {
+        raidName = document.querySelector('.raid[data-id="' + payload.data.raid + '"] .raid-name').textContent;
+      } catch(e) {}
     }
 
     console.log('[' + new Date().toLocaleTimeString('en-US', {hour12: false}) + ']', raidName + ':', payload.message);
