@@ -176,16 +176,25 @@ function initMessageListeners() {
 
 function initRaidLinking() {
 
+  var raidWarning = document.querySelector('.unknown-raid');
+
   openLinkedRaid();
   window.addEventListener('hashchange', openLinkedRaid);
 
   function openLinkedRaid() {
 
     var raidId;
+    var raidToggle;
 
     if (window.location.hash) {
       raidId = window.location.hash.split('-')[1];
-      document.getElementById('raid-toggle-' + raidId).checked = true;
+      raidToggle = document.getElementById('raid-toggle-' + raidId);
+      if (raidToggle) {
+        raidToggle.checked = true;
+        raidWarning.style.display = 'none';
+      } else {
+        raidWarning.style.display = '';
+      }
     }
 
   }

@@ -593,3 +593,12 @@ hr {
 .raid-boss-input-label-tier-5 {
   background-image: url(../img/egg-tier-5.png);
 }
+.unknown-raid {
+  color: #ab342f;
+  font-weight: bold;
+  background-color: #ffd5d5;
+  text-align: center;
+  border: #ff8799 2px solid;
+  border-radius: 5px;
+  padding: 12px;
+}
