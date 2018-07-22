@@ -1,14 +1,11 @@
 
-import json
 import logging
 from datetime import timedelta, datetime
-from math import floor
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
-from django.utils.dateformat import format as date_format
 from raidikalu import settings
-from raidikalu.pokedex import get_pokemon_number_by_name
+from raidikalu.bestiary import get_monster_number_by_name
 from raidikalu.utils import format_timedelta
 
 
@@ -27,64 +24,15 @@ class TimestampedModel(models.Model):
     return super(TimestampedModel, self).save(*args, **kwargs)
 
 
-class EditableSettings(models.Model):
-  expires_at = models.DateTimeField()
-  raid_types_json = models.TextField()
-  notifications_json = models.TextField()
-  additional_information = models.TextField(blank=True)
-  _current_settings = None
-
-  def __init__(self, *args, **kwargs):
-    super(EditableSettings, self).__init__(*args, **kwargs)
-    for field in self._meta.get_fields():
-      if field.name.endswith('_json'):
-        unserialized_field_name = field.name.replace('_json', '')
-        try:
-          unserialized_value = json.loads(getattr(self, field.name))
-          setattr(self, unserialized_field_name, unserialized_value)
-        except (TypeError, json.decoder.JSONDecodeError) as e:
-          LOG.error('Error parsing %s' % field.name, exc_info=True)
-          setattr(self, unserialized_field_name, [])
-    for raid_type in self.raid_types:
-      raid_type['pokemon_number'] = get_pokemon_number_by_name(raid_type['pokemon'])
-      raid_type['pokemon_image'] = settings.BASE_POKEMON_IMAGE_URL.format(raid_type['pokemon_number'])
+class InfoBox(models.Model):
+  content = models.TextField(blank=True)
 
   @classmethod
-  def load_current_settings(cls):
+  def get_infobox_content(cls):
     try:
-      return cls.objects.filter(expires_at__gt=timezone.now()).earliest('expires_at')
-    except cls.DoesNotExist:
-      pass
-    try:
-      return cls.objects.latest('expires_at')
-    except cls.DoesNotExist:
-      pass
-    return cls.objects.create(**{
-      'expires_at': timezone.now(),
-      'raid_types_json': '[{"tier":1, "pokemon":"Pidgey"}]',
-    })
-
-  @classmethod
-  def get_current_settings(cls):
-    if cls._current_settings and cls._current_settings.expires_at > timezone.now():
-      return cls._current_settings
-    cls._current_settings = cls.load_current_settings()
-    return cls._current_settings
-
-  @classmethod
-  def get_tier_for_pokemon(cls, pokemon_name):
-    editable_settings = EditableSettings.get_current_settings()
-    for raid_type in editable_settings.raid_types:
-      if raid_type['pokemon'] == pokemon_name:
-        return raid_type['tier']
-    return None
-
-  def save(self, *args, **kwargs):
-    EditableSettings._current_settings = None
-    return super(EditableSettings, self).save(*args, **kwargs)
-
-  def __str__(self):
-    return 'Settings until %s' % str(self.expires_at)
+      return cls.objects.all()[0].content
+    except IndexError:
+      return ''
 
 
 class DataSource(models.Model):
@@ -116,6 +64,20 @@ class GymNickname(TimestampedModel):
     return '%s // %s' % (self.gym.name, self.nickname)
 
 
+class RaidType(models.Model):
+  tier = models.PositiveSmallIntegerField()
+  monster_name = models.CharField(max_length=255)
+  monster_number = models.PositiveSmallIntegerField(null=True, blank=True)
+  image_url = models.CharField(max_length=2048, blank=True)
+  is_active = models.BooleanField(default=True)
+
+  def save(self, *args, **kwargs):
+    self.monster_number = get_monster_number_by_name(self.monster_name)
+
+  def get_image_url(self):
+    return self.image_url or settings.BASE_RAID_IMAGE_URL.format(self.monster_number)
+
+
 class Raid(TimestampedModel):
   RAID_EGG_DURATION = timedelta(hours=1)
   RAID_BATTLE_DURATION = timedelta(minutes=45)
@@ -126,18 +88,23 @@ class Raid(TimestampedModel):
   data_source = models.ForeignKey(DataSource, on_delete=models.SET_NULL, null=True, blank=True)
   unverified_text = models.CharField(max_length=255, blank=True)
   tier = models.PositiveSmallIntegerField(null=True, blank=True)
-  pokemon_name = models.CharField(max_length=255, blank=True)
-  pokemon_number = models.PositiveSmallIntegerField(null=True, blank=True)
+  monster_name = models.CharField(max_length=255, blank=True)
+  raid_type = models.ForeignKey(RaidType, related_name='raids', on_delete=models.SET_NULL, null=True, blank=True)
   fast_move = models.CharField(max_length=255, blank=True)
   charge_move = models.CharField(max_length=255, blank=True)
   start_at = models.DateTimeField(null=True, blank=True)
   end_at = models.DateTimeField(null=True, blank=True)
 
   def save(self, *args, **kwargs):
-    if self.pokemon_name and not self.tier:
-      self.tier = EditableSettings.get_tier_for_pokemon(self.pokemon_name)
+    if self.raid_type:
+      self.tier = self.raid_type.tier
+      self.monster_name = self.raid_type.monster_name
+    elif not self.raid_type and self.monster_name:
+      try:
+        self.raid_type = RaidType.objects.get(monster_name=self.monster_name)
+      except RaidType.DoesNotExist:
+        LOG.error('Could not find raid type for raid', extra={'data': {'raid_monster_name': repr(self.monster_name)}})
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
-    self.pokemon_number = get_pokemon_number_by_name(self.pokemon_name)
     self.unverified_text = self.get_unverified_text()
     Raid.objects.filter(end_at__lt=timezone.now()).delete()
     return super(Raid, self).save(*args, **kwargs)
@@ -148,8 +115,8 @@ class Raid(TimestampedModel):
       return timezone.now() >= self.start_at
     return False
 
-  def get_pokemon_image_url(self):
-    return settings.BASE_POKEMON_IMAGE_URL.format(self.pokemon_number)
+  def get_image_url(self):
+    return self.raid_type.get_image_url() or ''
 
   def get_time_left_until_start(self):
     return self.start_at - timezone.now() if self.start_at else None
@@ -196,11 +163,11 @@ class Raid(TimestampedModel):
     return '\u2013'
 
   def get_unverified_text(self):
-    is_pokemon_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_POKEMON) < 3
+    is_monster_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_MONSTER) < 3
     is_tier_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_TIER) < 3
-    if is_pokemon_unverified and is_tier_unverified:
+    if is_monster_unverified and is_tier_unverified:
       return 'raidin olemassaolo'
-    if is_pokemon_unverified:
+    if is_monster_unverified:
       return 'mikä monni'
     return ''
 
@@ -209,9 +176,9 @@ class Raid(TimestampedModel):
     if tier is not None:
       self.tier = int(tier)
 
-    pokemon_name = RaidVote.get_top_value(self, RaidVote.FIELD_POKEMON)
-    if pokemon_name is not None:
-      self.pokemon_name = pokemon_name
+    monster_name = RaidVote.get_top_value(self, RaidVote.FIELD_MONSTER)
+    if monster_name is not None:
+      self.monster_name = monster_name
 
     fast_move = RaidVote.get_top_value(self, RaidVote.FIELD_FAST_MOVE)
     if fast_move is not None:
@@ -231,18 +198,18 @@ class Raid(TimestampedModel):
     self.save()
 
   def __str__(self):
-    return '%s // %s' % (self.gym.name, self.pokemon_name)
+    return '%s // %s' % (self.gym.name, self.monster_name)
 
 
 class RaidVote(TimestampedModel):
   FIELD_TIER = 'tier'
-  FIELD_POKEMON = 'pokemon_name'
+  FIELD_MONSTER = 'monster_name'
   FIELD_FAST_MOVE = 'fast_move'
   FIELD_CHARGE_MOVE = 'charge_move'
   FIELD_START_AT = 'start_at'
   FIELD_CHOICES = (
     (FIELD_TIER, 'Taso'),
-    (FIELD_POKEMON, 'Monni'),
+    (FIELD_MONSTER, 'Monni'),
     (FIELD_FAST_MOVE, 'Fast move'),
     (FIELD_CHARGE_MOVE, 'Charge move'),
     (FIELD_START_AT, 'Alkamisaika'),

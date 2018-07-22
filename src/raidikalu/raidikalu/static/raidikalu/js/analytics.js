@@ -2,7 +2,7 @@
 
   gtag('config', GOOGLE_ANALYTICS_ID, {
     'custom_map': {
-      'dimension1': 'pokemon',
+      'dimension1': 'monster',
       'dimension2': 'tier',
       'dimension3': 'gym',
       'dimension4': 'starttimechoice',
@@ -43,7 +43,7 @@
     }
 
     raidElement = document.querySelector('.raid[data-id="' + raidId + '"]');
-    data['pokemon'] = raidElement.getAttribute('data-pokemon');
+    data['monster'] = raidElement.getAttribute('data-monster');
     data['tier'] = raidElement.getAttribute('data-tier');
     data['gym'] = raidElement.getAttribute('data-gym');
     data['event_action'] = eventName;

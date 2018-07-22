@@ -151,4 +151,4 @@ SESSION_COOKIE_AGE = 15769000 # about 6 months
 # Raidikalu
 #
 
-RAIDIKALU_BASE_POKEMON_IMAGE_URL = os.environ.get('BASE_POKEMON_IMAGE_URL', '/static/img/pokemon/%s.png')
+RAIDIKALU_BASE_RAID_IMAGE_URL = os.environ.get('BASE_RAID_IMAGE_URL', '/static/img/raidicons/%s.png')

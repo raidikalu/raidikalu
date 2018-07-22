@@ -191,11 +191,11 @@ hr {
 .filter-buttons .btn {
   margin: 5px 5px 5px 0;
 }
-.pfc[data-tier="1"]:checked ~ .raid[data-tier="1"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="2"]:checked ~ .raid[data-tier="2"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="3"]:checked ~ .raid[data-tier="3"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="4"]:checked ~ .raid[data-tier="4"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="5"]:checked ~ .raid[data-tier="5"][data-pokemon="unknown"] { display: block; }
+.pfc[data-tier="1"]:checked ~ .raid[data-tier="1"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="2"]:checked ~ .raid[data-tier="2"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="3"]:checked ~ .raid[data-tier="3"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="4"]:checked ~ .raid[data-tier="4"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="5"]:checked ~ .raid[data-tier="5"][data-monster="unknown"] { display: block; }
 .raid[data-tier=""] { display: block; }
 .pfl {
   display: inline-block;
@@ -267,7 +267,7 @@ hr {
   background-size: cover;
   box-shadow: 0 0 1px #000;
 }
-.raid-pokemon-icon {
+.raid-monster-icon {
   position: absolute;
   width: 64px;
   height: 64px;
@@ -299,7 +299,7 @@ hr {
 [data-tier="1"] .raid-tier {
   color: #0D47A1;
 }
-.raid-pokemon {
+.raid-monster {
   position: absolute;
   top: 80px;
   left: 0px;

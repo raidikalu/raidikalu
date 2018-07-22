@@ -1,13 +1,13 @@
 {% load l10n %}{% spaceless %}
-    <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}">
+    <div class="raid" data-monster="{{ raid.monster_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}">
       <input id="raid-toggle-{{ raid.pk }}" class="raid-toggle styled-checkable-input" type="checkbox" />
       <div class="raid-main">
         <label for="raid-toggle-{{ raid.pk }}">
           <div class="raid-icon" style="background-image: url({{ raid.gym.image_url }});"></div>
-          <div class="raid-pokemon-icon" style="background-image: url({{ raid.get_pokemon_image_url }});"></div>
+          <div class="raid-monster-icon" style="background-image: url({{ raid.get_raid_image_url }});"></div>
           <div class="raid-tier">{{ raid.get_tier_display }}</div>
-          <div class="raid-pokemon">
-            <span>{{ raid.pokemon_name|default:"? ? ?" }}</span>
+          <div class="raid-monster">
+            <span>{{ raid.monster_name|default:"? ? ?" }}</span>
           </div>
           <div class="raid-time">
             {% if raid.has_started %}

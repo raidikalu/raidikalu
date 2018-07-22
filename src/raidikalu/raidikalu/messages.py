@@ -47,7 +47,7 @@ def raid_updated(instance, created, **kwargs):
     {
       'raid': raid.pk,
       'gym': raid.gym.name,
-      'pokemon': raid.pokemon_name,
+      'monster': raid.monster_name,
       'tier': raid.tier,
       'lat': str(raid.gym.latitude),
       'lng': str(raid.gym.longitude),

@@ -63,12 +63,12 @@
           <input id="raid-boss-input-checkbox-tier-1" class="styled-checkable-input" type="radio" name="raid-boss" value="tier-1" />
           <label for="raid-boss-input-checkbox-tier-1" class="raid-boss-input-label raid-boss-input-label-tier-1"></label>
         </div>
-        {% regroup editable_settings.raid_types|dictsortreversed:"tier" by tier as raid_types_by_tier %}
+        {% regroup raid_types|dictsortreversed:"tier" by tier as raid_types_by_tier %}
         {% for grouped_raid_types in raid_types_by_tier %}
         <div class="raid-boss-input-tier-group">
           {% for raid_type in grouped_raid_types.list %}
-          <input id="raid-boss-input-checkbox-{{ raid_type.pokemon_number }}" class="styled-checkable-input" type="radio" name="raid-boss" value="{{ raid_type.pokemon|addslashes }}" />
-          <label for="raid-boss-input-checkbox-{{ raid_type.pokemon_number }}" class="raid-boss-input-label" style="background-image: url({{ raid_type.pokemon_image }});"></label>{% endfor %}
+          <input id="raid-boss-input-checkbox-{{ raid_type.monster_number }}" class="styled-checkable-input" type="radio" name="raid-boss" value="{{ raid_type.monster_name|addslashes }}" />
+          <label for="raid-boss-input-checkbox-{{ raid_type.monster_number }}" class="raid-boss-input-label" style="background-image: url({{ raid_type.image_url }});"></label>{% endfor %}
         </div>
         {% endfor %}
         <hr />

@@ -14,8 +14,8 @@
       }
     </style>
     <style>
-      {% for raid_type in editable_settings.raid_types %}
-      .pfc[value="{{ raid_type.pokemon }}"]:checked ~ .raid[data-pokemon="{{ raid_type.pokemon }}"] { display: block; }{% endfor %}
+      {% for raid_type in raid_types %}
+      .pfc[value="{{ raid_type.monster_name }}"]:checked ~ .raid[data-monster="{{ raid_type.monster_name }}"] { display: block; }{% endfor %}
     </style>
     <script>document.documentElement.classList.remove('no-js');</script>
 {% endblock %}
@@ -35,8 +35,8 @@
     <input class="form-control trainer-nickname-input" value="{{ request.session.nickname }}" placeholder="Nimimerkki, jos haluat erottua" />
     <button class="btn trainer-nickname-btn">OK</button>
     <p>Nää monnit kiinnostais</p>
-    {% for raid_type in editable_settings.raid_types %}
-    <input id="pf{{ forloop.counter }}" class="pfc" data-tier="{{ raid_type.tier }}" type="checkbox" value="{{ raid_type.pokemon }}" checked /><label for="pf{{ forloop.counter }}" class="pft{{ raid_type.tier }} pfl">{{ raid_type.pokemon }}</label>{% endfor %}
+    {% for raid_type in raid_types %}
+    <input id="pf{{ forloop.counter }}" class="pfc" data-tier="{{ raid_type.tier }}" type="checkbox" value="{{ raid_type.monster_name }}" checked /><label for="pf{{ forloop.counter }}" class="pft{{ raid_type.tier }} pfl">{{ raid_type.monster_name }}</label>{% endfor %}
     <div class="filter-buttons">
       <button class="btn js-filter-all">Kaikki käy</button>
       <button class="btn js-filter-none">Ei mikään</button>
@@ -52,16 +52,16 @@
     <p>Tulossa</p>
     {% endif %}
     {% for raid in grouped_raids.list %}
-    <div class="raid" data-pokemon="{{ raid.pokemon_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}" data-gym="{{ raid.gym.name|addslashes }}">
+    <div class="raid" data-monster="{{ raid.monster_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}" data-gym="{{ raid.gym.name|addslashes }}">
       <a name="raidi-{{ raid.pk }}" class="raid-anchor"></a>
       <input id="raid-toggle-{{ raid.pk }}" class="raid-toggle styled-checkable-input" type="checkbox" />
       <div class="raid-main">
         <label for="raid-toggle-{{ raid.pk }}">
           <div class="raid-icon" style="background-image: url({{ raid.gym.image_url }});"></div>
-          <div class="raid-pokemon-icon" style="background-image: url({{ raid.get_pokemon_image_url }});"></div>
+          <div class="raid-monster-icon" style="background-image: url({{ raid.get_raid_image_url }});"></div>
           <div class="raid-tier">{{ raid.get_tier_display }}</div>
-          <div class="raid-pokemon">
-            <span>{{ raid.pokemon_name|default:"? ? ?" }}</span>
+          <div class="raid-monster">
+            <span>{{ raid.monster_name|default:"? ? ?" }}</span>
           </div>
           <div class="raid-time">
             {% if raid.has_started %}
@@ -132,16 +132,16 @@
     {% endfor %}
     {% endfor %}
     {% else %}
-    {% if editable_settings.additional_information %}
+    {% if infobox_content %}
     <p>Ei yhtäkään raidia, mutta nyt on hyvä aika tsekata mitä alalaidasta löytyy.</p>
     {% else %}
     <p>Ei yhtäkään raidia</p>
     {% endif %}
     {% endif %}
 
-    {% if editable_settings.additional_information %}
+    {% if infobox_content %}
     <div class="additional-information">
-      {{ editable_settings.additional_information|safe }}
+      {{ infobox_content|safe }}
     </div>
     {% endif %}
 
@@ -150,52 +150,54 @@
       var NICKNAME = '{{ request_nickname }}';
     </script>
     <script>
-      (function persistPokemonFilters() {
+      (function persistMonsterFilters() {
 
         if ( ! window.localStorage) {
           return;
         }
 
-        var selectedPokemonData = localStorage.getItem('selected-pokemon-v{{ editable_settings.expires_at|date:"YmdHi" }}') || '[{% for raid_type in editable_settings.raid_types %}"{{ raid_type.pokemon }}"{% if not forloop.last %},{% endif %}{% endfor %}]';
-        var selectedPokemon = JSON.parse(selectedPokemonData) || [];
+        var unselectedMonsterData = localStorage.getItem('unselected-monsters') || '[]';
+        var unselectedMonsters = JSON.parse(unselectedMonsterData) || [];
 
         Array.prototype.slice.call(document.querySelectorAll('.pfc')).forEach(initFilters);
-        document.addEventListener('change', handlePokemonFilterChange);
+        document.addEventListener('change', handleMonsterFilterChange);
 
         document.documentElement.classList.add('js-loaded');
 
         function initFilters(filterCheckbox) {
 
-          var pokemon = filterCheckbox.value;
-          if (selectedPokemon.indexOf(pokemon) === -1) {
+          var monster = filterCheckbox.value;
+          if (unselectedMonsters.indexOf(monster) !== -1) {
             filterCheckbox.checked = false;
           }
 
         }
 
-        function handlePokemonFilterChange(event) {
+        function handleMonsterFilterChange(event) {
           persistFilter(event.target);
         }
 
         function persistFilter(checkbox) {
 
-          var pokemon;
-          var indexOfPokemon;
+          var monster;
+          var indexOfMonster;
+          var isMonsterPreviouslyUnselected;
 
           if ( ! checkbox.classList.contains('pfc')) {
             return;
           }
 
-          pokemon = checkbox.value;
-          indexOfPokemon = selectedPokemon.indexOf(pokemon);
+          monster = checkbox.value;
+          indexOfMonster = unselectedMonsters.indexOf(monster);
+          isMonsterPreviouslyUnselected = indexOfMonster !== -1;
 
-          if (checkbox.checked && indexOfPokemon === -1) {
-            selectedPokemon.push(pokemon);
-            localStorage.setItem('selected-pokemon-v{{ editable_settings.expires_at|date:"YmdHi" }}', JSON.stringify(selectedPokemon));
+          if ( ! checkbox.checked && ! isMonsterPreviouslyUnselected) {
+            unselectedMonsters.push(monster);
+            localStorage.setItem('unselected-monsters', JSON.stringify(unselectedMonsters));
           }
-          if ( ! checkbox.checked && indexOfPokemon !== -1) {
-            selectedPokemon.splice(indexOfPokemon, 1);
-            localStorage.setItem('selected-pokemon-v{{ editable_settings.expires_at|date:"YmdHi" }}', JSON.stringify(selectedPokemon));
+          if (checkbox.checked && isMonsterPreviouslyUnselected) {
+            unselectedMonsters.splice(indexOfMonster, 1);
+            localStorage.setItem('unselected-monsters', JSON.stringify(unselectedMonsters));
           }
 
         }
