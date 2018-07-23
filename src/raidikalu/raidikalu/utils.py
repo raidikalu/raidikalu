@@ -1,5 +1,6 @@
 
 from django.core.cache import cache
+from django.utils.translation import ugettext_lazy as _
 
 
 def format_timedelta(timedelta_obj):
@@ -17,6 +18,6 @@ def get_nickname(request):
     anonymous_counter = cache.get('anonymous_nickname_counter') or 0
     anonymous_counter += 1
     cache.set('anonymous_nickname_counter' , anonymous_counter, 300 * 24 * 60 * 60)
-    request.session['anonymous_nickname'] = 'Anonyymi %s' % anonymous_counter
+    request.session['anonymous_nickname'] = _('#anonymous-nickname') % anonymous_counter
     return request.session['anonymous_nickname']
 

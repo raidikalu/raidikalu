@@ -1,5 +1,5 @@
 {% extends "raidikalu/base.html" %}
-{% load l10n static %}
+{% load i18n l10n static %}
 
 {% block html_tag_extra %} class="no-js"{% endblock %}
 
@@ -14,6 +14,14 @@
       }
     </style>
     <style>
+      .pfl:after {
+        content: ": {% trans '#raidtype-filter-no' %}";
+      }
+      .pfc:checked + .pfl:after {
+        content: ": {% trans '#raidtype-filter-yes' %}";
+      }
+    </style>
+    <style>
       {% for raid_type in raid_types %}
       .pfc[value="{{ raid_type.monster_name }}"]:checked ~ .raid[data-monster="{{ raid_type.monster_name }}"] { display: block; }{% endfor %}
     </style>
@@ -25,21 +33,21 @@
     <input id="clipboard-input" class="clipboard-input" tabindex="-1" />
 
     <div class="new-raid-link-container">
-      <a href="{% url 'raidikalu.raid_create' %}" title="Ilmoita raidi" class="new-raid-link">
-        <span class="new-raid-link-label">&lt;&mdash; Ilmoita raidi</span>
+      <a href="{% url 'raidikalu.raid_create' %}" title="{% trans 'Submit raid' %}" class="new-raid-link">
+        <span class="new-raid-link-label">&lt;&mdash; {% trans "Submit raid" %}</span>
       </a>
     </div>
     <a href="/" class="refresh-button">
       <i class="fa fa-refresh"></i>
     </a>
-    <input class="form-control trainer-nickname-input" value="{{ request.session.nickname }}" placeholder="Nimimerkki, jos haluat erottua" />
-    <button class="btn trainer-nickname-btn">OK</button>
-    <p>Nää monnit kiinnostais</p>
+    <input class="form-control trainer-nickname-input" value="{{ request.session.nickname }}" placeholder="{% trans 'Nickname, for standing out' %}" />
+    <button class="btn trainer-nickname-btn">{% trans 'OK' %}</button>
+    <p>{% trans "I'm interested in these raid bosses" %}</p>
     {% for raid_type in raid_types %}
     <input id="pf{{ forloop.counter }}" class="pfc" data-tier="{{ raid_type.tier }}" type="checkbox" value="{{ raid_type.monster_name }}" checked /><label for="pf{{ forloop.counter }}" class="pft{{ raid_type.tier }} pfl">{{ raid_type.monster_name }}</label>{% endfor %}
     <div class="filter-buttons">
-      <button class="btn js-filter-all">Kaikki käy</button>
-      <button class="btn js-filter-none">Ei mikään</button>
+      <button class="btn js-filter-all">{% trans "Anything goes" %}</button>
+      <button class="btn js-filter-none">{% trans "None of them" %}</button>
     </div>
 
     {% regroup raids|dictsortreversed:"has_started" by has_started as raids_by_status %}
@@ -47,9 +55,9 @@
     {% if raids %}
     {% for grouped_raids in raids_by_status %}
     {% if grouped_raids.grouper %}
-    <p>Menossa</p>
+    <p>{% trans "Ongoing" %}</p>
     {% else %}
-    <p>Tulossa</p>
+    <p>{% trans "Upcoming" %}</p>
     {% endif %}
     {% for raid in grouped_raids.list %}
     <div class="raid" data-monster="{{ raid.monster_name|default:'unknown' }}" data-tier="{{ raid.tier|default:'' }}" data-id="{{ raid.pk }}" data-gym="{{ raid.gym.name|addslashes }}">
@@ -65,14 +73,14 @@
           </div>
           <div class="raid-time">
             {% if raid.has_started %}
-            <span>Päättyy&nbsp;<strong>{{ raid.end_at|date:"H:i" }}</strong>, jäljellä&nbsp;<strong class="raid-time-left" data-time="{{ raid.end_at.timestamp }}">{{ raid.get_time_left_until_end_display }}</strong></span>
+            <span>{% trans "#raid-list-time-label-ends" %}&nbsp;<strong>{{ raid.end_at|date:"H:i" }}</strong>, {% trans "#raid-list-time-label-remaining" %}&nbsp;<strong class="raid-time-left" data-time="{{ raid.end_at.timestamp }}">{{ raid.get_time_left_until_end_display }}</strong></span>
             {% elif raid.start_at %}
-            <span>Alkaa&nbsp;<strong>{{ raid.start_at|date:"H:i" }}</strong>, alkuun&nbsp;<strong class="raid-time-left" data-time="{{ raid.start_at.timestamp }}">{{ raid.get_time_left_until_start_display }}</strong></span>
+            <span>{% trans "#raid-list-time-label-starts" %}&nbsp;<strong>{{ raid.start_at|date:"H:i" }}</strong>, {% trans "#raid-list-time-label-timetostart" %}&nbsp;<strong class="raid-time-left" data-time="{{ raid.start_at.timestamp }}">{{ raid.get_time_left_until_start_display }}</strong></span>
             {% else %}
-            <span>Kellonaika puuttuu</span>
+            <span>{% trans "Start time unknown" %}</span>
             {% endif %}
             {% if raid.attendance_count > 0 %}
-            <span>, raidaajia&nbsp;<strong>{{ raid.attendance_count }}</strong></span>
+            <span>, {% trans "#raid-list-raider-count" %}&nbsp;<strong>{{ raid.attendance_count }}</strong></span>
             {% endif %}
           </div>
           <div class="raid-name">{{ raid.gym.name }}</div>
@@ -83,29 +91,29 @@
       <div class="raid-extra">
         <div class="raid-details">
           {% if raid.fast_move %}
-          <div class="raid-detail">Liikkeet: <strong>{{ raid.fast_move|default:"- - -" }} / {{ raid.charge_move|default:"- - -" }}</strong></div>
+          <div class="raid-detail">{% trans "Moveset" %}: <strong>{{ raid.fast_move|default:"- - -" }} / {{ raid.charge_move|default:"- - -" }}</strong></div>
           {% endif %}
-          {% if raid.gym.is_park %}
-          <div class="raid-detail">Puisto: <strong>todennäköisesti</strong></div>
+          {% if raid.gym.is_ex_eligible %}
+          <div class="raid-detail">{% trans "EX eligible" %}: <strong>{% trans "probably" %}</strong></div>
           {% endif %}
           {% if raid.submitter %}
-          <div class="raid-detail">Ilmoittaja: <strong>{{ raid.submitter }}</strong></div>
+          <div class="raid-detail">{% trans "Submitter" %}: <strong>{{ raid.submitter }}</strong></div>
           {% elif not raid.submitter and not raid.data_source_id %}
-          <div class="raid-detail">Ilmoittaja: <strong>Anonyymi</strong></div>
+          <div class="raid-detail">{% trans "Submitter" %}: <strong>{% trans "Anonymous" %}</strong></div>
           {% endif %}
           {% if raid.unverified_text %}
-          <div class="raid-detail">Vahvistamatta: <strong>{{ raid.unverified_text }}</strong></div>
+          <div class="raid-detail">{% trans "Unverified" %}: <strong>{{ raid.unverified_text }}</strong></div>
           {% endif %}
         </div>
         {% if raid.start_at %}
         <div class="raider-attendance-choices" data-raid-id="{{ raid.pk }}">
-          <div>Haluun raidata klo</div>
+          <div>{% trans "I want to raid at" %}</div>
           {% for start_time in raid.start_times_with_attendances %}
           <input id="rac-{{ raid.pk }}-{{ forloop.counter0 }}" class="raid-attendance-choice styled-checkable-input" type="radio" name="rac-{{ raid.pk }}" value="{{ forloop.counter0 }}"{% if raid.own_start_time_choice == forloop.counter0 %} checked{% endif %} />
           <label for="rac-{{ raid.pk }}-{{ forloop.counter0 }}" class="btn">{{ start_time.time|date:"H:i" }} (<span class="rac-{{ forloop.counter0 }}-count">{{ start_time.attendances|length }}</span>)</label>
           {% endfor %}
           <input id="rac-{{ raid.pk }}-cancel" class="styled-checkable-input raid-attandance-cancel" type="radio" name="rac-{{ raid.pk }}" value="cancel"{% if raid.own_start_time_choice == None %} checked{% endif %} />
-          <label for="rac-{{ raid.pk }}-cancel" class="btn">Enpäs raidaakaan!</label>
+          <label for="rac-{{ raid.pk }}-cancel" class="btn">{% trans "Nevermind, can't raid!" %}</label>
         </div>
         {% for start_time in raid.start_times_with_attendances %}
         {% if start_time.attendances %}
@@ -119,12 +127,12 @@
         {% endfor %}
         {% endif %}
         <div class="sharing-links">
-          <span>Linkkaa </span>
-          <a href="whatsapp://send?text={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">WhatsAppiin</a>
+          <span>{% trans "#sharelink-label-share-to" %} </span>
+          <a href="whatsapp://send?text={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">{% trans "#sharelink-label-to-whatsapp" %}</a>
           <span>, </span>
-          <a href="tg://msg_url?url={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">Telegramiin</a>
-          <span> tai kopioi </span>
-          <a href="{% filter addslashes %}{{ BASE_URL }}#raidi-{{ raid.pk }}{% endfilter %}">linkki</a>
+          <a href="tg://msg_url?url={% filter urlencode:'' %}{{ BASE_URL }}#raidi-{{ raid.pk }} {% endfilter %}" target="_blank">{% trans "#sharelink-label-to-telegram" %}</a>
+          <span> {% trans "#sharelink-label-or-copy" %} </span>
+          <a href="{% filter addslashes %}{{ BASE_URL }}#raidi-{{ raid.pk }}{% endfilter %}">{% trans "#sharelink-label-a-link" %}</a>
           <span>.</span>
         </div>
       </div>
@@ -133,9 +141,9 @@
     {% endfor %}
     {% else %}
     {% if infobox_content %}
-    <p>Ei yhtäkään raidia, mutta nyt on hyvä aika tsekata mitä alalaidasta löytyy.</p>
+    <p>{% trans "No raids in sight, but now is a good time to check what's below here." %}</p>
     {% else %}
-    <p>Ei yhtäkään raidia</p>
+    <p>{% trans "No raids in sight" %}</p>
     {% endif %}
     {% endif %}
 

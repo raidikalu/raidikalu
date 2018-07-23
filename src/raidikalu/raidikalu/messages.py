@@ -47,6 +47,7 @@ def raid_updated(instance, created, **kwargs):
     {
       'raid': raid.pk,
       'gym': raid.gym.name,
+      'pokemon': raid.monster_name, # Backwards compatibility
       'monster': raid.monster_name,
       'tier': raid.tier,
       'lat': str(raid.gym.latitude),

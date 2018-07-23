@@ -211,12 +211,12 @@ hr {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 .pfl:after {
-  content: ": ei";
+  content: ": N";
   display: inline-block;
   width: 25px;
 }
 .pfc:checked + .pfl:after {
-  content: ": joo";
+  content: ": Y";
 }
 .pfc:checked + .pfl {
   color: #fff;

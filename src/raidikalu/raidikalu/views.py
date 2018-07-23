@@ -10,6 +10,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
@@ -56,7 +57,7 @@ class RaidListView(BaseRaidView):
       nickname = self.NICKNAME_CLEANUP_REGEX.sub('', nickname)
       nickname = nickname[:16]
       old_nickname = get_nickname(request)
-      if old_nickname.startswith('Anonyymi '):
+      if old_nickname.startswith(_('#anonymous-startswith')):
         Attendance.objects.filter(submitter=old_nickname).update(submitter=nickname)
       request.session['nickname'] = nickname
       return HttpResponse('OK')
@@ -91,10 +92,6 @@ class RaidListView(BaseRaidView):
 
   def get_queryset(self):
     qs = Raid.objects.exclude(end_at__lte=timezone.now())
-    max_eligible_count = self.request.GET.get('cellmax', None)
-    if max_eligible_count:
-      max_eligible_count = int(max_eligible_count)
-      qs = qs.filter(gym__s2_cell_eligible_count__gt=0, gym__s2_cell_eligible_count__lte=max_eligible_count)
     return qs.select_related('gym').prefetch_related('attendances').order_by('start_at')
 
   def get_context_data(self, **kwargs):

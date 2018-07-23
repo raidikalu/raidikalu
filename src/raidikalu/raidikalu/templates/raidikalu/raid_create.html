@@ -1,12 +1,13 @@
 {% extends "raidikalu/base.html" %}
+{% load i18n %}
 
 {% block main_content %}
     <form action="" method="post">
       {% csrf_token %}
-      <h1>Ilmoita raidi</h1>
+      <h1>{% trans "Submit raid" %}</h1>
       <input id="gym-choice-radio-0" class="gym-choice-radio gym-choice-none styled-checkable-input" type="radio" name="gym" value="" checked />
 
-      <input class="form-control gym-search-filter" placeholder="Salin nimi" autofocus />
+      <input class="form-control gym-search-filter" placeholder="{% trans 'Gym name' %}" autofocus />
 
       <div class="gym-choices">
         {% for gym in gyms %}
@@ -23,30 +24,31 @@
       </div>
 
       <div class="raid-form">
-        <label for="gym-choice-radio-0" class="btn gym-choice-none-label">Vaihda salia</label>
+        <label for="gym-choice-radio-0" class="btn gym-choice-none-label">{% trans "Change gym" %}</label>
         <hr />
         <input id="raid-time-field-type-1" class="styled-checkable-input" type="radio" name="raid-time-field-type" value="start" checked />
         <input id="raid-time-field-type-2" class="styled-checkable-input" type="radio" name="raid-time-field-type" value="end" />
         <input id="raid-time-value-type-1" class="styled-checkable-input" type="radio" name="raid-time-value-type" value="absolute" checked />
         <input id="raid-time-value-type-2" class="styled-checkable-input" type="radio" name="raid-time-value-type" value="relative" />
         <div>
-          <label for="raid-time-field-type-1" class="btn raid-time-btn">Alkamisaika</label>
-          <label for="raid-time-field-type-2" class="btn raid-time-btn">Päättymisaika</label>
+          <label for="raid-time-field-type-1" class="btn raid-time-btn">{% trans "Starting time" %}</label>
+          <label for="raid-time-field-type-2" class="btn raid-time-btn">{% trans "Ending time" %}</label>
         </div>
         <div>
-          <label for="raid-time-value-type-1" class="btn raid-time-btn">Kellonaikana</label>
-          <label for="raid-time-value-type-2" class="btn raid-time-btn">Minuutteina</label>
+          <label for="raid-time-value-type-1" class="btn raid-time-btn">{% trans "As 24h time" %}</label>
+          <label for="raid-time-value-type-2" class="btn raid-time-btn">{% trans "As minutes" %}</label>
         </div>
         <div>
           <label for="raid-time-field" class="raid-time-input-label">
-            <span>Raidi&nbsp;</span>
-            <span class="raid-time-label-field-type-1">alkaa&nbsp;</span>
-            <span class="raid-time-label-field-type-2">päättyy&nbsp;</span>
-            <span class="raid-time-label-value-type-1">kello&nbsp;</span>
+            <span>{% trans "#raid-submission-time-label-raid" %}&nbsp;</span>
+            <span class="raid-time-label-field-type-1">{% trans "#raid-submission-time-label-starts" %}&nbsp;</span>
+            <span class="raid-time-label-field-type-2">{% trans "#raid-submission-time-label-ends" %}&nbsp;</span>
+            <span class="raid-time-label-value-type-1">{% trans "#raid-submission-time-label-at" %}&nbsp;</span>
+            <span class="raid-time-label-value-type-2">{% trans "#raid-submission-time-label-in" %}&nbsp;</span>
           </label>
           <input id="raid-time-field" class="form-control raid-time-field" name="raid-time" />
           <label for="raid-time-field" class="raid-time-input-label">
-            <span class="raid-time-label-value-type-2">&nbsp;minuutin päästä</span>
+            <span class="raid-time-label-value-type-2">&nbsp;{% trans "#raid-submission-time-label-minutes" %}</span>
           </label>
         </div>
         <hr />
@@ -72,7 +74,7 @@
         </div>
         {% endfor %}
         <hr />
-        <button type="submit" class="btn raid-form-submit">Ilmoita raidi</button>
+        <button type="submit" class="btn raid-form-submit">{% trans "Submit raid" %}</button>
         <hr />
       </div>
     </form>

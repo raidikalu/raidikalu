@@ -4,6 +4,7 @@ from datetime import timedelta, datetime
 from django.db import models
 from django.db.models import Count
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 from raidikalu import settings
 from raidikalu.bestiary import get_monster_number_by_name
 from raidikalu.utils import format_timedelta
@@ -49,7 +50,7 @@ class Gym(TimestampedModel):
   latitude = models.DecimalField(max_digits=9, decimal_places=6)
   longitude = models.DecimalField(max_digits=9, decimal_places=6)
   image_url = models.CharField(max_length=2048, blank=True)
-  is_park = models.BooleanField(default=False)
+  is_ex_eligible = models.BooleanField(default=False)
   is_active = models.BooleanField(default=True)
 
   def __str__(self):
@@ -73,9 +74,23 @@ class RaidType(models.Model):
 
   def save(self, *args, **kwargs):
     self.monster_number = get_monster_number_by_name(self.monster_name)
+    super().save(*args, **kwargs)
 
   def get_image_url(self):
     return self.image_url or settings.BASE_RAID_IMAGE_URL.format(self.monster_number)
+
+  def get_tier_display(self):
+    if self.tier == 1:
+      return '\u2605'
+    if self.tier == 2:
+      return '\u2605\u2605'
+    if self.tier == 3:
+      return '\u2605\u2605\u2605'
+    if self.tier == 4:
+      return '\u2605\u2605\u2605\u2605'
+    if self.tier == 5:
+      return '\u2605\u2605\u2605\u2605\u2605'
+    return '\u2013'
 
 
 class Raid(TimestampedModel):
@@ -166,9 +181,9 @@ class Raid(TimestampedModel):
     is_monster_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_MONSTER) < 3
     is_tier_unverified = RaidVote.get_confidence(self, RaidVote.FIELD_TIER) < 3
     if is_monster_unverified and is_tier_unverified:
-      return 'raidin olemassaolo'
+      return _('raid existence')
     if is_monster_unverified:
-      return 'mikä monni'
+      return _('raid boss')
     return ''
 
   def count_votes_and_update(self):
@@ -208,11 +223,11 @@ class RaidVote(TimestampedModel):
   FIELD_CHARGE_MOVE = 'charge_move'
   FIELD_START_AT = 'start_at'
   FIELD_CHOICES = (
-    (FIELD_TIER, 'Taso'),
-    (FIELD_MONSTER, 'Monni'),
-    (FIELD_FAST_MOVE, 'Fast move'),
-    (FIELD_CHARGE_MOVE, 'Charge move'),
-    (FIELD_START_AT, 'Alkamisaika'),
+    (FIELD_TIER, _('Tier')),
+    (FIELD_MONSTER, _('Raid boss')),
+    (FIELD_FAST_MOVE, _('Fast move')),
+    (FIELD_CHARGE_MOVE, _('Charge move')),
+    (FIELD_START_AT, _('Starting time')),
   )
   raid = models.ForeignKey(Raid, related_name='votes', on_delete=models.CASCADE)
   submitter = models.CharField(max_length=255, blank=True)

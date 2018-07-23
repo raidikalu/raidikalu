@@ -111,9 +111,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 #
 
-LANGUAGE_CODE = 'fi'
+LANGUAGE_CODE = os.environ.get('DJANGO_LANGUAGE_CODE', 'en')
 
-TIME_ZONE = 'Europe/Helsinki'
+LOCALE_PATHS = [
+  os.path.join(BASE_DIR, 'locale'),
+]
+
+TIME_ZONE = os.environ.get('DJANGO_TIME_ZONE', 'Europe/Helsinki')
 
 USE_I18N = True
 
