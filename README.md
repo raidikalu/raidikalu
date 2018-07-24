@@ -1,8 +1,12 @@
 Tää listaa raideja ja silleen
 
-Omalle koneelle tän saa pystyyn tälleen:
+You can get your own Raidikalu by clicking on this magic button:
 
-From here on we'll be using English because reasons
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/raidikalu/raidikalu)
+
+_default login is_ `admin:defaultpassword`
+
+To set up a local development environment you can follow these out-of-date instructions, or look forward to updated ones.
 
 - Get python and pipenv
 - `pipenv install --dev` to set up development environment and install all dependencies
