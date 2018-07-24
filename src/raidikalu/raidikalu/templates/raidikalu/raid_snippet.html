@@ -4,7 +4,7 @@
       <div class="raid-main">
         <label for="raid-toggle-{{ raid.pk }}">
           <div class="raid-icon" style="background-image: url({{ raid.gym.image_url }});"></div>
-          <div class="raid-monster-icon" style="background-image: url({{ raid.get_raid_image_url }});"></div>
+          <div class="raid-monster-icon" style="background-image: url({{ raid.get_image_url }});"></div>
           <div class="raid-tier">{{ raid.get_tier_display }}</div>
           <div class="raid-monster">
             <span>{{ raid.monster_name|default:"? ? ?" }}</span>

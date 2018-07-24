@@ -13,11 +13,21 @@ def make_inactive(modeladmin, request, queryset):
 make_inactive.short_description = 'Mark selected as not active'
 
 
+def make_ex_eligible(modeladmin, request, queryset):
+  queryset.update(is_ex_eligible=True)
+make_ex_eligible.short_description = 'Mark selected as EX eligible'
+
+
+def make_ex_ineligible(modeladmin, request, queryset):
+  queryset.update(is_ex_eligible=False)
+make_ex_ineligible.short_description = 'Mark selected as not EX eligible'
+
+
 class GymAdmin(admin.ModelAdmin):
   list_display = ('name', 'is_ex_eligible', 'is_active')
   list_filter = ('is_ex_eligible', 'is_active')
   search_fields = ('name',)
-  actions = [make_active, make_inactive]
+  actions = [make_active, make_inactive, make_ex_eligible, make_ex_ineligible]
 
 
 class RaidTypeAdmin(admin.ModelAdmin):

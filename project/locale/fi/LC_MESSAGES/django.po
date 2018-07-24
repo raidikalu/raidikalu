@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-23 17:11+0300\n"
+"POT-Creation-Date: 2018-07-24 18:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,39 +18,75 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: raidikalu/raidikalu/models.py:170
+#: raidikalu/raidikalu/models.py:194
 msgid "raid existence"
 msgstr "raidin olemassaolo"
 
-#: raidikalu/raidikalu/models.py:172
+#: raidikalu/raidikalu/models.py:196
 msgid "raid boss"
 msgstr "mikä monni"
 
-#: raidikalu/raidikalu/models.py:212
+#: raidikalu/raidikalu/models.py:236
 msgid "Tier"
 msgstr "Taso"
 
-#: raidikalu/raidikalu/models.py:213
+#: raidikalu/raidikalu/models.py:237
 msgid "Raid boss"
 msgstr "Monni"
 
-#: raidikalu/raidikalu/models.py:214
+#: raidikalu/raidikalu/models.py:238
 msgid "Fast move"
 msgstr ""
 
-#: raidikalu/raidikalu/models.py:215
+#: raidikalu/raidikalu/models.py:239
 msgid "Charge move"
 msgstr ""
 
-#: raidikalu/raidikalu/models.py:216
+#: raidikalu/raidikalu/models.py:240
 #: raidikalu/raidikalu/templates/raidikalu/raid_create.html:34
 msgid "Starting time"
 msgstr "Alkamisaika"
 
+#: raidikalu/raidikalu/templates/404.html:5
+msgid "#error-404-title"
+msgstr "404 Sinua ei löydy &#x1F914;"
+
+#: raidikalu/raidikalu/templates/404.html:8
+msgid "#error-404-heading"
+msgstr "404 Sinua ei löydy &#x1F914;"
+
+#: raidikalu/raidikalu/templates/500.html:5
+msgid "#error-500-title"
+msgstr "Raidikalu &ndash; listaa raideja, jos listaa"
+
+#: raidikalu/raidikalu/templates/500.html:8
+msgid "#error-500-heading"
+msgstr "Virhetilanne &#x1F62E;"
+
+#: raidikalu/raidikalu/templates/500.html:9
+msgid "#error-500-description"
+msgstr ""
+"Sori, palvelin on pahalla päällä eikä halua näyttää tätä sivua. Laitoin "
+"asiasta viestiä ylläpidolle. Ota rauhallisesti, ja yritä hetken kuluttua "
+"uudelleen. Jos tilanne ei ratkea, yritä hieman pidemmän hetken kuluttua "
+"uudelleen. Kiitos ymmärryksestäsi."
+
+#: raidikalu/raidikalu/templates/raidikalu/base.html:8
+msgid "#app-title"
+msgstr "Raidikalu &ndash; listaa raideja, jos listaa"
+
+#: raidikalu/raidikalu/templates/raidikalu/base.html:17
+msgid "#opengraph-title"
+msgstr "Raidikalu"
+
+#: raidikalu/raidikalu/templates/raidikalu/base.html:18
+msgid "#opengraph-description"
+msgstr "Listaa raideja, jos listaa"
+
 #: raidikalu/raidikalu/templates/raidikalu/raid_create.html:7
 #: raidikalu/raidikalu/templates/raidikalu/raid_create.html:77
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:36
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:37
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:38
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:39
 msgid "Submit raid"
 msgstr "Ilmoita raidi"
 
@@ -106,137 +142,137 @@ msgstr "ei"
 msgid "#raidtype-filter-yes"
 msgstr "joo"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:43
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:45
 msgid "Nickname, for standing out"
 msgstr "Nimimerkki, jos haluat erottua"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:44
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:46
 msgid "OK"
 msgstr ""
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:45
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:47
 msgid "I'm interested in these raid bosses"
 msgstr "Nää monnit kiinnostais"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:49
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:51
 msgid "Anything goes"
 msgstr "Kaikki käy"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:50
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:52
 msgid "None of them"
 msgstr "Ei mikään"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:58
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:60
 msgid "Ongoing"
 msgstr "Menossa"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:60
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:62
 msgid "Upcoming"
 msgstr "Tulossa"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:76
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:78
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:14
 msgid "#raid-list-time-label-ends"
 msgstr "Päättyy"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:76
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:78
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:14
 msgid "#raid-list-time-label-remaining"
 msgstr "jäljellä"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:78
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:80
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:16
 msgid "#raid-list-time-label-starts"
 msgstr "Alkaa"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:78
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:80
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:16
 msgid "#raid-list-time-label-timetostart"
 msgstr "alkuun"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:80
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:82
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:18
 msgid "Start time unknown"
 msgstr "Kellonaika puuttuu"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:83
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:85
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:21
 msgid "#raid-list-raider-count"
 msgstr "raidaajia"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:94
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:96
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:32
 msgid "Moveset"
 msgstr "Liikkeet"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:97
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:99
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:35
 msgid "EX eligible"
 msgstr "EX-sali"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:97
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:99
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:35
 msgid "probably"
 msgstr "todennäköisesti"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:100
 #: raidikalu/raidikalu/templates/raidikalu/raid_list.html:102
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:104
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:38
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:40
 msgid "Submitter"
 msgstr "Ilmoittaja"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:102
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:104
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:40
 msgid "Anonymous"
 msgstr "Anonyymi"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:105
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:107
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:43
 msgid "Unverified"
 msgstr "Vahvistamatta"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:110
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:112
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:48
 msgid "I want to raid at"
 msgstr "Haluun raidata klo"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:116
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:118
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:54
 msgid "Nevermind, can't raid!"
 msgstr "Enpäs raidaakaan!"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:130
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:132
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:68
 msgid "#sharelink-label-share-to"
 msgstr "Linkkaa"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:131
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:133
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:69
 msgid "#sharelink-label-to-whatsapp"
 msgstr "WhatsAppiin"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:133
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:135
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:71
 msgid "#sharelink-label-to-telegram"
 msgstr "Telegram"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:134
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:136
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:72
 msgid "#sharelink-label-or-copy"
 msgstr "tai kopioi"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:135
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:137
 #: raidikalu/raidikalu/templates/raidikalu/raid_snippet.html:73
 msgid "#sharelink-label-a-link"
 msgstr "linkki"
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:144
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:146
 msgid "No raids in sight, but now is a good time to check what's below here."
 msgstr ""
 "Ei yhtäkään raidia, mutta nyt on hyvä aika tsekata mitä alalaidasta löytyy."
 
-#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:146
+#: raidikalu/raidikalu/templates/raidikalu/raid_list.html:148
 msgid "No raids in sight"
 msgstr "Ei yhtäkään raidia"
 

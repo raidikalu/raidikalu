@@ -151,7 +151,7 @@ class RaidCreateView(TemplateView):
   def post(self, request, *args, **kwargs):
     raid_types = RaidType.objects.filter(is_active=True)
     ALLOWED_TIERS = ['1', '2', '3', '4', '5']
-    ALLOWED_MONSTERS = [raid_type.monster for raid_type in raid_types]
+    ALLOWED_MONSTERS = [raid_type.monster_name for raid_type in raid_types]
 
     gym_id = request.POST.get('gym', None)
     gym = get_object_or_404(Gym, pk=gym_id)

@@ -111,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 #
 
-LANGUAGE_CODE = os.environ.get('DJANGO_LANGUAGE_CODE', 'en')
+LANGUAGE_CODE = os.environ.get('DJANGO_LANGUAGE_CODE', 'fi')
 
 LOCALE_PATHS = [
   os.path.join(BASE_DIR, 'locale'),

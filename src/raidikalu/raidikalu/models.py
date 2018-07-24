@@ -67,13 +67,19 @@ class GymNickname(TimestampedModel):
 
 class RaidType(models.Model):
   tier = models.PositiveSmallIntegerField()
+  priority = models.PositiveSmallIntegerField(default=1)
   monster_name = models.CharField(max_length=255)
   monster_number = models.PositiveSmallIntegerField(null=True, blank=True)
   image_url = models.CharField(max_length=2048, blank=True)
   is_active = models.BooleanField(default=True)
 
+  class Meta:
+    ordering = ['-tier', 'priority']
+
   def save(self, *args, **kwargs):
-    self.monster_number = get_monster_number_by_name(self.monster_name)
+    new_monster_number = get_monster_number_by_name(self.monster_name)
+    if new_monster_number:
+      self.monster_number = new_monster_number
     super().save(*args, **kwargs)
 
   def get_image_url(self):
@@ -117,6 +123,7 @@ class Raid(TimestampedModel):
     elif not self.raid_type and self.monster_name:
       try:
         self.raid_type = RaidType.objects.get(monster_name=self.monster_name)
+        self.tier = self.raid_type.tier
       except RaidType.DoesNotExist:
         LOG.error('Could not find raid type for raid', extra={'data': {'raid_monster_name': repr(self.monster_name)}})
     self.end_at = self.start_at + Raid.RAID_BATTLE_DURATION if self.start_at else None
@@ -131,7 +138,10 @@ class Raid(TimestampedModel):
     return False
 
   def get_image_url(self):
-    return self.raid_type.get_image_url() or ''
+    if self.raid_type:
+      return self.raid_type.get_image_url()
+    else:
+      return ''
 
   def get_time_left_until_start(self):
     return self.start_at - timezone.now() if self.start_at else None
