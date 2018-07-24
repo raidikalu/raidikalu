@@ -1,7 +1,10 @@
 
 import os
+import re
 from project.settings import *
 
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
 
@@ -18,6 +21,10 @@ INSTALLED_APPS += [
 MIDDLEWARE = [
   'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
 ] + MIDDLEWARE
+
+IGNORABLE_404_URLS = (
+  re.compile('api/1/raid-snippet/[^/]+/'),
+)
 
 CHANNEL_LAYERS = {
   'default': {
@@ -61,7 +68,7 @@ LOGGING = {
     'console': {
       'class': 'logging.StreamHandler',
       'formatter': 'verbose',
-      'level': 'DEBUG',
+      'level': 'WARNING',
     },
   },
   'loggers': {

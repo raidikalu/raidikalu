@@ -191,11 +191,11 @@ hr {
 .filter-buttons .btn {
   margin: 5px 5px 5px 0;
 }
-.pfc[data-tier="1"]:checked ~ .raid[data-tier="1"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="2"]:checked ~ .raid[data-tier="2"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="3"]:checked ~ .raid[data-tier="3"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="4"]:checked ~ .raid[data-tier="4"][data-pokemon="unknown"] { display: block; }
-.pfc[data-tier="5"]:checked ~ .raid[data-tier="5"][data-pokemon="unknown"] { display: block; }
+.pfc[data-tier="1"]:checked ~ .raid[data-tier="1"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="2"]:checked ~ .raid[data-tier="2"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="3"]:checked ~ .raid[data-tier="3"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="4"]:checked ~ .raid[data-tier="4"][data-monster="unknown"] { display: block; }
+.pfc[data-tier="5"]:checked ~ .raid[data-tier="5"][data-monster="unknown"] { display: block; }
 .raid[data-tier=""] { display: block; }
 .pfl {
   display: inline-block;
@@ -211,12 +211,12 @@ hr {
   -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 .pfl:after {
-  content: ": ei";
+  content: ": N";
   display: inline-block;
   width: 25px;
 }
 .pfc:checked + .pfl:after {
-  content: ": joo";
+  content: ": Y";
 }
 .pfc:checked + .pfl {
   color: #fff;
@@ -267,7 +267,7 @@ hr {
   background-size: cover;
   box-shadow: 0 0 1px #000;
 }
-.raid-pokemon-icon {
+.raid-monster-icon {
   position: absolute;
   width: 64px;
   height: 64px;
@@ -299,7 +299,7 @@ hr {
 [data-tier="1"] .raid-tier {
   color: #0D47A1;
 }
-.raid-pokemon {
+.raid-monster {
   position: absolute;
   top: 80px;
   left: 0px;
@@ -501,6 +501,10 @@ hr {
 .gym-choice-none-label {
   margin: 10px;
 }
+.gym-choice.selected-gym {
+  background: pink;
+  border-radius: 16px;
+}
 .raid-form-submit {
   font-size: 24px;
   padding: 10px 15px;
@@ -588,4 +592,13 @@ hr {
 }
 .raid-boss-input-label-tier-5 {
   background-image: url(../img/egg-tier-5.png);
+}
+.unknown-raid {
+  color: #ab342f;
+  font-weight: bold;
+  background-color: #ffd5d5;
+  text-align: center;
+  border: #ff8799 2px solid;
+  border-radius: 5px;
+  padding: 12px;
 }

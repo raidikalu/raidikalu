@@ -1,16 +1,54 @@
 from django.contrib import admin
-from raidikalu.models import EditableSettings, Gym, GymNickname, Raid, DataSource, RaidVote, Attendance
+from django.utils.html import format_html
+from raidikalu.models import InfoBox, Gym, GymNickname, RaidType, Raid, DataSource, RaidVote, Attendance
+
+
+def make_active(modeladmin, request, queryset):
+  queryset.update(is_active=True)
+make_active.short_description = 'Mark selected as active'
+
+
+def make_inactive(modeladmin, request, queryset):
+  queryset.update(is_active=False)
+make_inactive.short_description = 'Mark selected as not active'
+
+
+def make_ex_eligible(modeladmin, request, queryset):
+  queryset.update(is_ex_eligible=True)
+make_ex_eligible.short_description = 'Mark selected as EX eligible'
+
+
+def make_ex_ineligible(modeladmin, request, queryset):
+  queryset.update(is_ex_eligible=False)
+make_ex_ineligible.short_description = 'Mark selected as not EX eligible'
 
 
 class GymAdmin(admin.ModelAdmin):
-  list_display = ('name', 'is_park', 'latest_ex_raid_at', 's2_cell_id', 's2_cell_eligible_count')
-  list_filter = ('is_park', 's2_cell_id')
-  search_fields = ('name', 's2_cell_id')
+  list_display = ('name', 'is_ex_eligible', 'is_active')
+  list_filter = ('is_ex_eligible', 'is_active')
+  search_fields = ('name',)
+  actions = [make_active, make_inactive, make_ex_eligible, make_ex_ineligible]
 
 
-admin.site.register(EditableSettings)
+class RaidTypeAdmin(admin.ModelAdmin):
+  list_display = ('get_tier_display', 'image_tag', 'monster_name', 'monster_number', 'is_active')
+  list_filter = ('tier', 'is_active')
+  actions = [make_active, make_inactive]
+  ordering = ['-tier']
+
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    RaidType.get_tier_display.short_description = 'Tier'
+
+  def image_tag(self, obj):
+    return format_html('<img src="%s" width="32" height="32" style="margin: -8px 0;" />' % obj.get_image_url()) if obj.get_image_url() else ''
+  image_tag.short_description = 'Image'
+
+
+admin.site.register(InfoBox)
 admin.site.register(Gym, GymAdmin)
 admin.site.register(GymNickname)
+admin.site.register(RaidType, RaidTypeAdmin)
 admin.site.register(Raid)
 admin.site.register(DataSource)
 admin.site.register(RaidVote)

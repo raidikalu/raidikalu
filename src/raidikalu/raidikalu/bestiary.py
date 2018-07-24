@@ -1,5 +1,5 @@
 
-pokemon_species = [
+monster_species = [
   (1, 'Bulbasaur'),
   (2, 'Ivysaur'),
   (3, 'Venusaur'),
@@ -805,6 +805,6 @@ pokemon_species = [
 ]
 
 
-def get_pokemon_number_by_name(name):
-  pokemon_numbers_by_names = {name: number for number, name in pokemon_species}
-  return pokemon_numbers_by_names.get(name, None)
+def get_monster_number_by_name(name):
+  monster_numbers_by_names = {name: number for number, name in monster_species}
+  return monster_numbers_by_names.get(name, None)

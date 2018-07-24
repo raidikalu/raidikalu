@@ -1,0 +1,39 @@
+{
+  "name": "Raidikalu",
+  "description": "Listaa raideja ja silleen",
+  "repository": "https://github.com/raidikalu/raidikalu",
+  "logo": "https://cdn.rawgit.com/raidikalu/raidikalu/master/src/raidikalu/raidikalu/static/raidikalu/img/logo-200.png",
+  "success_url": "/sysadmin/",
+  "env": {
+    "BASE_RAID_IMAGE_URL": {
+      "description": "Base image url for Raid images, using a number format, for example: https://foo/icon_{0!s:0>3}.png would format to https://foo/icon_005.png and https://foo/icon_%s.png to just https://foo/icon_5.png",
+      "required": false
+    },
+    "DJANGO_ALLOWED_HOSTS": {
+      "description": "Comma separated list of allowed hostnames.",
+      "value": "*"
+    },
+    "DJANGO_LANGUAGE_CODE": {
+      "description": "Language of the installation. Default: fi",
+      "value": "en",
+      "required": false
+    },
+    "DJANGO_SETTINGS_MODULE": "project.production",
+    "DJANGO_SECRET_KEY": {
+      "description": "A secret key for a particular Django installation. This is used to provide cryptographic signing, and should be set to a unique, unpredictable value.",
+      "generator": "secret"
+    },
+  },
+  "addons": [
+    "heroku-postgresql",
+    "heroku-redis",
+    "sentry",
+    "memcachedcloud"
+  ],
+  "buildpacks": [
+    {"url": "https://github.com/heroku/heroku-buildpack-python#v134"}
+  ],
+  "scripts": {
+    "postdeploy": "./postdeploy.sh"
+  }
+}

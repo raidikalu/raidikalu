@@ -111,9 +111,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 #
 
-LANGUAGE_CODE = 'fi'
+LANGUAGE_CODE = os.environ.get('DJANGO_LANGUAGE_CODE', 'fi')
 
-TIME_ZONE = 'Europe/Helsinki'
+LOCALE_PATHS = [
+  os.path.join(BASE_DIR, 'locale'),
+]
+
+TIME_ZONE = os.environ.get('DJANGO_TIME_ZONE', 'Europe/Helsinki')
 
 USE_I18N = True
 
@@ -151,4 +155,4 @@ SESSION_COOKIE_AGE = 15769000 # about 6 months
 # Raidikalu
 #
 
-RAIDIKALU_BASE_POKEMON_IMAGE_URL = os.environ.get('BASE_POKEMON_IMAGE_URL', '/static/img/pokemon/%s.png')
+RAIDIKALU_BASE_RAID_IMAGE_URL = os.environ.get('BASE_RAID_IMAGE_URL', '/static/img/raidicons/%s.png')

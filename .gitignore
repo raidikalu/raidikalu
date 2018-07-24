@@ -1,4 +1,5 @@
 .ssh
+.env
 *.pyc
 *.egg-info
 database.db

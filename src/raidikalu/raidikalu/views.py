@@ -2,7 +2,6 @@
 import json
 import logging
 import re
-from base64 import b64encode
 from calendar import timegm
 from datetime import timedelta, datetime
 from django.core.cache import cache
@@ -11,15 +10,18 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from raidikalu.messages import attendance_updated
-from raidikalu.models import EditableSettings, Gym, Raid, DataSource, RaidVote, Attendance
+from raidikalu.models import InfoBox, Gym, RaidType, Raid, DataSource, RaidVote, Attendance
 from raidikalu.utils import get_nickname
 
 
 LOG = logging.getLogger(__name__)
+
+THRESHOLD_OF_LOOKING_A_LOT_LIKE_MILLISECONDS = 1000000000000
 
 
 class BaseRaidView(TemplateView):
@@ -55,7 +57,7 @@ class RaidListView(BaseRaidView):
       nickname = self.NICKNAME_CLEANUP_REGEX.sub('', nickname)
       nickname = nickname[:16]
       old_nickname = get_nickname(request)
-      if old_nickname.startswith('Anonyymi '):
+      if old_nickname.startswith(_('#anonymous-startswith')):
         Attendance.objects.filter(submitter=old_nickname).update(submitter=nickname)
       request.session['nickname'] = nickname
       return HttpResponse('OK')
@@ -90,15 +92,12 @@ class RaidListView(BaseRaidView):
 
   def get_queryset(self):
     qs = Raid.objects.exclude(end_at__lte=timezone.now())
-    max_eligible_count = self.request.GET.get('cellmax', None)
-    if max_eligible_count:
-      max_eligible_count = int(max_eligible_count)
-      qs = qs.filter(gym__s2_cell_eligible_count__gt=0, gym__s2_cell_eligible_count__lte=max_eligible_count)
     return qs.select_related('gym').prefetch_related('attendances').order_by('start_at')
 
   def get_context_data(self, **kwargs):
     context = super(RaidListView, self).get_context_data(**kwargs)
-    context['editable_settings'] = EditableSettings.get_current_settings()
+    context['infobox_content'] = InfoBox.get_infobox_content()
+    context['raid_types'] = RaidType.objects.filter(is_active=True)
     context['raids'] = self.get_queryset()
     context['request_nickname'] = get_nickname(self.request)
     context['now'] = timezone.now()
@@ -145,15 +144,14 @@ post_save.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Att
 pre_delete.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
 
 
-
 class RaidCreateView(TemplateView):
   template_name = 'raidikalu/raid_create.html'
   ABSOLUTE_TIME_REGEX = re.compile(r'^(?P<hours>\d?\d).?(?P<minutes>\d\d)$')
 
   def post(self, request, *args, **kwargs):
-    editable_settings = EditableSettings.get_current_settings()
+    raid_types = RaidType.objects.filter(is_active=True)
     ALLOWED_TIERS = ['1', '2', '3', '4', '5']
-    ALLOWED_POKEMON = [raid_type['pokemon'] for raid_type in editable_settings.raid_types]
+    ALLOWED_MONSTERS = [raid_type.monster_name for raid_type in raid_types]
 
     gym_id = request.POST.get('gym', None)
     gym = get_object_or_404(Gym, pk=gym_id)
@@ -180,9 +178,9 @@ class RaidCreateView(TemplateView):
           'vote_field': RaidVote.FIELD_TIER,
           'vote_value': int(tier),
         })
-    elif raid_boss in ALLOWED_POKEMON:
+    elif raid_boss in ALLOWED_MONSTERS:
       votes.append({
-        'vote_field': RaidVote.FIELD_POKEMON,
+        'vote_field': RaidVote.FIELD_MONSTER,
         'vote_value': raid_boss,
       })
 
@@ -236,8 +234,8 @@ class RaidCreateView(TemplateView):
 
   def get_context_data(self, **kwargs):
     context = super(RaidCreateView, self).get_context_data(**kwargs)
-    context['editable_settings'] = EditableSettings.get_current_settings()
-    context['gyms'] = Gym.objects.all().order_by('name').prefetch_related('nicknames')
+    context['raid_types'] = RaidType.objects.filter(is_active=True)
+    context['gyms'] = Gym.objects.filter(is_active=True).order_by('name').prefetch_related('nicknames')
     return context
 
 
@@ -245,7 +243,7 @@ class RaidJsonExportView(View):
   def get(self, request, *args, **kwargs):
     data_source_api_key = self.kwargs.get('api_key')
     data_source = DataSource.objects.get(api_key=data_source_api_key)
-    already_received_raid_ids = RaidVote.objects.filter(data_source=data_source, vote_field=RaidVote.FIELD_POKEMON).values_list('raid_id', flat=True).distinct()
+    already_received_raid_ids = RaidVote.objects.filter(data_source=data_source, vote_field=RaidVote.FIELD_MONSTER).values_list('raid_id', flat=True).distinct()
     raids = Raid.objects.exclude(id__in=already_received_raid_ids).select_related('gym')
     raids_json = []
     for raid in raids:
@@ -255,7 +253,7 @@ class RaidJsonExportView(View):
         'gym_id': raid.gym.pogo_id,
         'latitude': raid.gym.latitude,
         'longitude': raid.gym.longitude,
-        'pokemon': raid.pokemon_name,
+        'monster': raid.monster_name,
         'fast_move': raid.fast_move,
         'charge_move': raid.charge_move,
         'start_time': timegm(raid.start_at.utctimetuple()) if raid.start_at else None,
@@ -281,10 +279,10 @@ class RaidReceiverView(View):
         'vote_value': tier,
       })
 
-    if raid_data.get('pokemon', None):
+    if raid_data.get('monster', None):
       votes.append({
-        'vote_field': RaidVote.FIELD_POKEMON,
-        'vote_value': raid_data.get('pokemon'),
+        'vote_field': RaidVote.FIELD_MONSTER,
+        'vote_value': raid_data.get('monster'),
       })
 
     if raid_data.get('fast_move', None):
@@ -305,8 +303,8 @@ class RaidReceiverView(View):
 
     if raid_data.get('start_time', None):
       start_timestamp = int(raid_data.get('start_time'))
-      is_microtime = start_timestamp > 1000000000000
-      if is_microtime:
+      is_milliseconds = start_timestamp > THRESHOLD_OF_LOOKING_A_LOT_LIKE_MILLISECONDS
+      if is_milliseconds:
         start_timestamp = start_timestamp / 1000.0
       votes.append({
         'vote_field': RaidVote.FIELD_START_AT,
@@ -329,4 +327,22 @@ class RaidReceiverView(View):
       RaidVote.objects.get_or_create(raid=raid, data_source=data_source, vote_field=vote['vote_field'], defaults=vote)
 
     raid.count_votes_and_update()
+    return HttpResponse('OK')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class GymReceiverView(View):
+  def post(self, request, *args, **kwargs):
+    data_source_api_key = self.kwargs.get('api_key')
+    data_source = DataSource.objects.get(api_key=data_source_api_key)
+    gym_data = json.loads(request.body)
+
+    gym, created = Gym.objects.get_or_create(pogo_id=gym_data['guid'], defaults={
+      'name': gym_data['name'],
+      'latitude': gym_data['latitude'],
+      'longitude': gym_data['longitude'],
+      'image_url': gym_data['image_url'].replace('http://', 'https://'),
+      'is_active': False,
+    })
+
     return HttpResponse('OK')

@@ -8,6 +8,6 @@ class RaidikaluConfig(AppConfig):
   verbose_name = 'Raidikalu'
 
   def ready(self):
-    from raidikalu.signals.notifications import notify_raid
-    post_save.connect(notify_raid, sender='raidikalu.Raid')
+    from raidikalu.messages import raid_updated
+    post_save.connect(raid_updated, sender='raidikalu.Raid')
 
