@@ -74,7 +74,7 @@ class RaidType(models.Model):
   is_active = models.BooleanField(default=True)
 
   class Meta:
-    ordering = ['-tier', 'priority']
+    ordering = ['-tier', '-priority']
 
   def save(self, *args, **kwargs):
     new_monster_number = get_monster_number_by_name(self.monster_name)

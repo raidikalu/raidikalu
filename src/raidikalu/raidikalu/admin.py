@@ -31,10 +31,10 @@ class GymAdmin(admin.ModelAdmin):
 
 
 class RaidTypeAdmin(admin.ModelAdmin):
-  list_display = ('get_tier_display', 'image_tag', 'monster_name', 'monster_number', 'is_active')
+  list_display = ('monster_name', 'image_tag', 'get_tier_display', 'monster_number', 'is_active')
   list_filter = ('tier', 'is_active')
   actions = [make_active, make_inactive]
-  ordering = ['-tier']
+  ordering = ['-tier', '-priority']
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
