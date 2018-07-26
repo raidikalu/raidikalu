@@ -57,7 +57,8 @@ class RaidListView(BaseRaidView):
       nickname = self.NICKNAME_CLEANUP_REGEX.sub('', nickname)
       nickname = nickname[:16]
       old_nickname = get_nickname(request)
-      if old_nickname.startswith(_('#anonymous-startswith')):
+      anonymous_nickname_prefix = _('#anonymous-startswith')
+      if old_nickname.startswith(str(anonymous_nickname_prefix)):
         Attendance.objects.filter(submitter=old_nickname).update(submitter=nickname)
       request.session['nickname'] = nickname
       return HttpResponse('OK')
