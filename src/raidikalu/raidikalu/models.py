@@ -168,10 +168,10 @@ class Raid(TimestampedModel):
       start_time_choices = [
         self.start_at,
         start_offset,
-        start_offset + timedelta(minutes=10),
-        start_offset + timedelta(minutes=20),
-        start_offset + timedelta(minutes=30),
       ]
+      minutes_in_a_raid = int(Raid.RAID_BATTLE_DURATION.total_seconds() / 60)
+      for minutes in range(10, minutes_in_a_raid - 10 + 1, 10):
+        start_time_choices.append(start_offset + timedelta(minutes=minutes))
     return start_time_choices
 
   def get_tier_display(self):
