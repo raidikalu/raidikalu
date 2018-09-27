@@ -1,11 +1,14 @@
 
 import json
-from channels import Group
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.utils.dateformat import format as format_datetime
 
 
 def send_event(event_name, event_message, event_data=None):
-  Group('raidikalu').send({
+  channel_layer = get_channel_layer()
+  async_to_sync(channel_layer.group_send)('raidikalu', {
+    'type': 'message',
     'text': json.dumps({
       'event': event_name,
       'message': event_message,

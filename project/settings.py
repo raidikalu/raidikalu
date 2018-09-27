@@ -60,15 +60,13 @@ TEMPLATES = [
   },
 ]
 
-CHANNEL_LAYERS = {
-  'default': {
-    'BACKEND': 'asgiref.inmemory.ChannelLayer',
-    'ROUTING': 'raidikalu.routing.channel_routing',
-  },
-}
+CHANNEL_LAYERS = {}
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+ASGI_APPLICATION = 'project.routing.application'
 
 
 #

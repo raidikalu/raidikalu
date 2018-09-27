@@ -1,11 +1,16 @@
 
-from channels import Group
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-def ws_connect(message):
-  message.reply_channel.send({'accept': True})
-  Group('raidikalu').add(message.reply_channel)
+class MainConsumer(AsyncWebsocketConsumer):
+  async def connect(self):
+    self.group_name = 'raidikalu'
+    await self.channel_layer.group_add(self.group_name, self.channel_name)
+    await self.accept()
 
+  async def disconnect(self, close_code):
+    await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-def ws_disconnect(message):
-  Group('raidikalu').discard(message.reply_channel)
+  async def message(self, event):
+    text = event['text']
+    await self.send(text_data=text)
