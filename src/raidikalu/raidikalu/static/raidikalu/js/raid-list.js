@@ -125,49 +125,36 @@ function initMessageListeners() {
 
   function attendanceUpdated(attendance) {
 
-    var request = new XMLHttpRequest();
-    request.open('GET', '/api/1/raid-snippet/' + attendance.raid + '/?t=' + (new Date().getTime()), true);
-    request.addEventListener('load', handleRaidData);
-    request.send();
+    var raidSnippet = attendance.snippet;
+    var tempWrapper = document.createElement('div');
+    var oldRaidElement = document.querySelector('.raid[data-id="' + attendance.raid + '"]');
+    var oldRaidCheckbox = oldRaidElement.querySelector('.raid-toggle');
+    var newRaidElement;
+    var oldChoiceElement;
+    var choiceElements;
+    var choiceIndex;
 
-    function handleRaidData() {
+    tempWrapper.innerHTML = raidSnippet;
+    newRaidElement = tempWrapper.firstChild;
+    newRaidElement.querySelector('.raid-toggle').checked = oldRaidCheckbox.checked;
 
-      if (request.status >= 400) {
-        return
-      }
-
-      var raidSnippet = request.responseText;
-      var tempWrapper = document.createElement('div');
-      var oldRaidElement = document.querySelector('.raid[data-id="' + attendance.raid + '"]');
-      var oldRaidCheckbox = oldRaidElement.querySelector('.raid-toggle');
-      var newRaidElement;
-      var oldChoiceElement;
-      var choiceElements;
-      var choiceIndex;
-
-      tempWrapper.innerHTML = raidSnippet;
-      newRaidElement = tempWrapper.firstChild;
-      newRaidElement.querySelector('.raid-toggle').checked = oldRaidCheckbox.checked;
-
-      choiceElements = newRaidElement.querySelectorAll('.raid-attendance-choice');
-      if (attendance.submitter == NICKNAME) {
-        choiceIndex = parseInt(attendance.choice);
-      }
-      else {
-        oldChoiceElement = oldRaidElement.querySelector('.raid-attendance-choice:checked');
-        choiceIndex = oldChoiceElement ? parseInt(oldChoiceElement.value) : null;
-      }
-      if (choiceIndex !== null && choiceElements[choiceIndex]) {
-        choiceElements[choiceIndex].checked = true;
-        newRaidElement.querySelector('.raid-attandance-cancel').checked = false;
-      }
-
-      oldRaidElement.parentNode.replaceChild(newRaidElement, oldRaidElement);
-
-      timerElements = document.querySelectorAll('[data-time]');
-      initAttendanceListeners(newRaidElement);
-
+    choiceElements = newRaidElement.querySelectorAll('.raid-attendance-choice');
+    if (attendance.submitter == NICKNAME) {
+      choiceIndex = attendance.choice !== null ? parseInt(attendance.choice) : attendance.choice;
     }
+    else {
+      oldChoiceElement = oldRaidElement.querySelector('.raid-attendance-choice:checked');
+      choiceIndex = oldChoiceElement ? parseInt(oldChoiceElement.value) : null;
+    }
+    if (choiceIndex !== null && choiceElements[choiceIndex]) {
+      choiceElements[choiceIndex].checked = true;
+      newRaidElement.querySelector('.raid-attandance-cancel').checked = false;
+    }
+
+    oldRaidElement.parentNode.replaceChild(newRaidElement, oldRaidElement);
+
+    timerElements = document.querySelectorAll('[data-time]');
+    initAttendanceListeners(newRaidElement);
 
   }
 

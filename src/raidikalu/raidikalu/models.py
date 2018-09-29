@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from raidikalu import settings
 from raidikalu.bestiary import get_monster_number_by_name
-from raidikalu.utils import format_timedelta
+from raidikalu.utils import format_timedelta, get_nickname
 
 
 LOG = logging.getLogger(__name__)
@@ -221,6 +221,26 @@ class Raid(TimestampedModel):
       self.start_at = start_at
 
     self.save()
+
+  def update_raid_context(self, request=None):
+    raid = self
+    nickname = get_nickname(request) if request else None
+    setattr(raid, 'own_start_time_choice', None)
+    start_times_with_attendances = []
+    raid_attendances = raid.attendances.all()
+    for choice_index, start_time_choice in enumerate(raid.get_start_time_choices()):
+      attendances_at_time = []
+      for attendance in raid_attendances:
+        if attendance.start_time_choice == choice_index:
+          attendances_at_time.append(attendance)
+          if nickname and attendance.submitter == nickname:
+            setattr(raid, 'own_start_time_choice', choice_index)
+      start_times_with_attendances.append({
+        'time': start_time_choice,
+        'attendances': attendances_at_time,
+      })
+    setattr(raid, 'start_times_with_attendances', start_times_with_attendances)
+    setattr(raid, 'attendance_count', len(raid_attendances))
 
   def __str__(self):
     return '%s // %s' % (self.gym.name, self.monster_name)

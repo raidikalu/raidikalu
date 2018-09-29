@@ -5,7 +5,7 @@ import re
 from calendar import timegm
 from datetime import timedelta, datetime
 from django.core.cache import cache
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, post_delete
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
@@ -24,28 +24,7 @@ LOG = logging.getLogger(__name__)
 THRESHOLD_OF_LOOKING_A_LOT_LIKE_MILLISECONDS = 1000000000000
 
 
-class BaseRaidView(TemplateView):
-  def update_raid_context(self, raid):
-    nickname = get_nickname(self.request)
-    setattr(raid, 'own_start_time_choice', None)
-    start_times_with_attendances = []
-    raid_attendances = raid.attendances.all()
-    for choice_index, start_time_choice in enumerate(raid.get_start_time_choices()):
-      attendances_at_time = []
-      for attendance in raid_attendances:
-        if attendance.start_time_choice == choice_index:
-          attendances_at_time.append(attendance)
-          if attendance.submitter == nickname:
-            setattr(raid, 'own_start_time_choice', choice_index)
-      start_times_with_attendances.append({
-        'time': start_time_choice,
-        'attendances': attendances_at_time,
-      })
-    setattr(raid, 'start_times_with_attendances', start_times_with_attendances)
-    setattr(raid, 'attendance_count', len(raid_attendances))
-
-
-class RaidListView(BaseRaidView):
+class RaidListView(TemplateView):
   template_name = 'raidikalu/raid_list.html'
   NICKNAME_CLEANUP_REGEX = re.compile(r'[^A-Za-z0-9]+')
 
@@ -71,8 +50,8 @@ class RaidListView(BaseRaidView):
         try:
           attendance = Attendance.objects.get(raid=raid, submitter=nickname)
           attendance.start_time_choice = None
-          attendance_updated(attendance, raid)
           attendance.delete()
+          attendance_updated(attendance, raid)
         except Attendance.DoesNotExist:
           return HttpResponse('fail')
         return HttpResponse('OK')
@@ -103,11 +82,11 @@ class RaidListView(BaseRaidView):
     context['request_nickname'] = get_nickname(self.request)
     context['now'] = timezone.now()
     for raid in context['raids']:
-      self.update_raid_context(raid)
+      raid.update_raid_context(self.request)
     return context
 
 
-class RaidSnippetView(BaseRaidView):
+class RaidSnippetView(TemplateView):
   template_name = 'raidikalu/raid_snippet.html'
   CACHE_TIMEOUT = 2 * 60 * 60
 
@@ -127,7 +106,7 @@ class RaidSnippetView(BaseRaidView):
 
   def get_context_data(self, **kwargs):
     context = super(RaidSnippetView, self).get_context_data(**kwargs)
-    self.update_raid_context(self.raid)
+    self.raid.update_raid_context(self.request)
     context['raid'] = self.raid
     context['now'] = timezone.now()
     return context
@@ -142,7 +121,7 @@ def invalidate_raid_snippet_from_attendance(instance, **kwargs):
 
 post_save.connect(invalidate_raid_snippet_from_raid, sender='raidikalu.Raid')
 post_save.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
-pre_delete.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
+post_delete.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
 
 
 class RaidCreateView(TemplateView):

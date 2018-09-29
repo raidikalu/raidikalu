@@ -2,6 +2,8 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.dateformat import format as format_datetime
 
 
@@ -19,6 +21,7 @@ def send_event(event_name, event_message, event_data=None):
 
 def attendance_updated(attendance, raid=None):
   raid = raid or attendance.raid
+  raid.update_raid_context()
   if attendance.start_time_choice is not None:
     start_time = raid.get_start_time_choices()[attendance.start_time_choice]
     start_time_str = format_datetime(start_time, 'H:i')
@@ -26,6 +29,10 @@ def attendance_updated(attendance, raid=None):
   else:
     start_time_str = None
     message = '%s ei tule raidille' % attendance.submitter
+  raid_snippet = render_to_string('raidikalu/raid_snippet.html', {
+    'raid': raid,
+    'now': timezone.now(),
+  })
   send_event(
     'attendance',
     message,
@@ -34,6 +41,7 @@ def attendance_updated(attendance, raid=None):
       'choice': attendance.start_time_choice,
       'time': start_time_str,
       'submitter': attendance.submitter,
+      'snippet': raid_snippet,
     },
   )
 
