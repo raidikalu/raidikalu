@@ -87,9 +87,17 @@ function initAttendanceListeners(containerElement) {
     formData.append('action', 'set-attendance');
     formData.append('raid', raidId);
     formData.append('choice', attendanceChoice);
+    request.addEventListener('load', handleResponse);
     request.open('POST', '', true);
     request.setRequestHeader('X-CSRFToken', CSRFTOKEN);
     request.send(formData);
+
+    function handleResponse(event) {
+
+      var data = JSON.parse(request.responseText);
+      attendanceUpdated(data);
+
+    }
 
   }
 
@@ -102,7 +110,6 @@ function initMessageListeners() {
   var websocket = new ReconnectingWebSocket(wsScheme + '://' + window.location.host + '/ws/');
 
   websocket.addEventListener('message', handleMessage);
-
 
   function handleMessage(event) {
 
@@ -123,40 +130,41 @@ function initMessageListeners() {
 
   }
 
-  function attendanceUpdated(attendance) {
+}
 
-    var raidSnippet = attendance.snippet;
-    var tempWrapper = document.createElement('div');
-    var oldRaidElement = document.querySelector('.raid[data-id="' + attendance.raid + '"]');
-    var oldRaidCheckbox = oldRaidElement.querySelector('.raid-toggle');
-    var newRaidElement;
-    var oldChoiceElement;
-    var choiceElements;
-    var choiceIndex;
 
-    tempWrapper.innerHTML = raidSnippet;
-    newRaidElement = tempWrapper.firstChild;
-    newRaidElement.querySelector('.raid-toggle').checked = oldRaidCheckbox.checked;
+function attendanceUpdated(attendance) {
 
-    choiceElements = newRaidElement.querySelectorAll('.raid-attendance-choice');
-    if (attendance.submitter == NICKNAME) {
-      choiceIndex = attendance.choice !== null ? parseInt(attendance.choice) : attendance.choice;
-    }
-    else {
-      oldChoiceElement = oldRaidElement.querySelector('.raid-attendance-choice:checked');
-      choiceIndex = oldChoiceElement ? parseInt(oldChoiceElement.value) : null;
-    }
-    if (choiceIndex !== null && choiceElements[choiceIndex]) {
-      choiceElements[choiceIndex].checked = true;
-      newRaidElement.querySelector('.raid-attandance-cancel').checked = false;
-    }
+  var raidSnippet = attendance.snippet;
+  var tempWrapper = document.createElement('div');
+  var oldRaidElement = document.querySelector('.raid[data-id="' + attendance.raid + '"]');
+  var oldRaidCheckbox = oldRaidElement.querySelector('.raid-toggle');
+  var newRaidElement;
+  var oldChoiceElement;
+  var choiceElements;
+  var choiceIndex;
 
-    oldRaidElement.parentNode.replaceChild(newRaidElement, oldRaidElement);
+  tempWrapper.innerHTML = raidSnippet;
+  newRaidElement = tempWrapper.firstChild;
+  newRaidElement.querySelector('.raid-toggle').checked = oldRaidCheckbox.checked;
 
-    timerElements = document.querySelectorAll('[data-time]');
-    initAttendanceListeners(newRaidElement);
-
+  choiceElements = newRaidElement.querySelectorAll('.raid-attendance-choice');
+  if (attendance.submitter == NICKNAME) {
+    choiceIndex = attendance.choice !== null ? parseInt(attendance.choice) : attendance.choice;
   }
+  else {
+    oldChoiceElement = oldRaidElement.querySelector('.raid-attendance-choice:checked');
+    choiceIndex = oldChoiceElement ? parseInt(oldChoiceElement.value) : null;
+  }
+  if (choiceIndex !== null && choiceElements[choiceIndex]) {
+    choiceElements[choiceIndex].checked = true;
+    newRaidElement.querySelector('.raid-attandance-cancel').checked = false;
+  }
+
+  oldRaidElement.parentNode.replaceChild(newRaidElement, oldRaidElement);
+
+  timerElements = document.querySelectorAll('[data-time]');
+  initAttendanceListeners(newRaidElement);
 
 }
 

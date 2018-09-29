@@ -33,17 +33,15 @@ def attendance_updated(attendance, raid=None):
     'raid': raid,
     'now': timezone.now(),
   })
-  send_event(
-    'attendance',
-    message,
-    {
-      'raid': raid.pk,
-      'choice': attendance.start_time_choice,
-      'time': start_time_str,
-      'submitter': attendance.submitter,
-      'snippet': raid_snippet,
-    },
-  )
+  data = {
+    'raid': raid.pk,
+    'choice': attendance.start_time_choice,
+    'time': start_time_str,
+    'submitter': attendance.submitter,
+    'snippet': raid_snippet,
+  }
+  send_event('attendance', message, data)
+  return data
 
 
 def raid_updated(instance, created, **kwargs):
@@ -52,19 +50,17 @@ def raid_updated(instance, created, **kwargs):
     message = 'Raidi %s lisätty' % instance.pk
   else:
     message = 'Raidi %s päivitetty' % instance.pk
-  send_event(
-    'raid',
-    message,
-    {
-      'raid': raid.pk,
-      'gym': raid.gym.name,
-      'pokemon': raid.monster_name, # Backwards compatibility
-      'monster': raid.monster_name,
-      'tier': raid.tier,
-      'lat': str(raid.gym.latitude),
-      'lng': str(raid.gym.longitude),
-      'start': int(raid.start_at.timestamp()) if raid.start_at else None,
-      'end': int(raid.end_at.timestamp()) if raid.end_at else None,
-      'created': created,
-    },
-  )
+  data = {
+    'raid': raid.pk,
+    'gym': raid.gym.name,
+    'pokemon': raid.monster_name, # Backwards compatibility
+    'monster': raid.monster_name,
+    'tier': raid.tier,
+    'lat': str(raid.gym.latitude),
+    'lng': str(raid.gym.longitude),
+    'start': int(raid.start_at.timestamp()) if raid.start_at else None,
+    'end': int(raid.end_at.timestamp()) if raid.end_at else None,
+    'created': created,
+  }
+  send_event('raid', message, data)
+  return data

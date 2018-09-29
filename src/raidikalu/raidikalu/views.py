@@ -51,23 +51,23 @@ class RaidListView(TemplateView):
           attendance = Attendance.objects.get(raid=raid, submitter=nickname)
           attendance.start_time_choice = None
           attendance.delete()
-          attendance_updated(attendance, raid)
+          data = attendance_updated(attendance, raid)
         except Attendance.DoesNotExist:
-          return HttpResponse('fail')
-        return HttpResponse('OK')
+          return HttpResponse('', status_code=400)
+        return JsonResponse(data)
       try:
         choice = int(choice)
       except ValueError:
-        return HttpResponse('fail')
+        return HttpResponse('', status_code=400)
       start_time_choices = raid.get_start_time_choices()
       if choice < 0 or choice >= len(start_time_choices):
-        return HttpResponse('fail')
+        return HttpResponse('', status_code=400)
       attendance, created = Attendance.objects.get_or_create(raid=raid, submitter=nickname, defaults={'start_time_choice': choice})
       if not created:
         attendance.start_time_choice = choice
         attendance.save()
-      attendance_updated(attendance, raid)
-      return HttpResponse('OK')
+      data = attendance_updated(attendance, raid)
+      return JsonResponse(data)
     return self.get(request, *args, **kwargs)
 
   def get_queryset(self):
