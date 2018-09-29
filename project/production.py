@@ -32,6 +32,10 @@ CHANNEL_LAYERS = {
     'CONFIG': {
       'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
       'capacity': 400,
+      'channel_capacity': {
+        'http*': 200,
+        'websocket*': 200,
+      },
     },
   },
 }
