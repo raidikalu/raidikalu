@@ -1,10 +1,14 @@
 
 import json
+import logging
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.dateformat import format as format_datetime
+
+
+LOG = logging.getLogger(__name__)
 
 
 def send_event(event_name, event_message, event_data=None):
@@ -40,7 +44,10 @@ def attendance_updated(attendance, raid=None):
     'submitter': attendance.submitter,
     'snippet': raid_snippet,
   }
-  send_event('attendance', message, data)
+  try:
+    send_event('attendance', message, data)
+  except Exception as e:
+    LOG.error(str(e), exc_info=True)
   return data
 
 
@@ -62,5 +69,8 @@ def raid_updated(instance, created, **kwargs):
     'end': int(raid.end_at.timestamp()) if raid.end_at else None,
     'created': created,
   }
-  send_event('raid', message, data)
+  try:
+    send_event('raid', message, data)
+  except Exception as e:
+    LOG.error(str(e), exc_info=True)
   return data
