@@ -116,7 +116,7 @@ function initMessageListeners() {
     var payload = JSON.parse(event.data);
     var raidName = 'unknown';
 
-    if (payload.event == 'attendance') {
+    if (payload.event == 'attendance' && attendance.submitter != NICKNAME) {
       attendanceUpdated(payload.data);
     }
 
