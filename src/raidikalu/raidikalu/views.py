@@ -6,7 +6,7 @@ from calendar import timegm
 from datetime import timedelta, datetime
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -53,15 +53,15 @@ class RaidListView(TemplateView):
           attendance.delete()
           data = attendance_updated(attendance, raid)
         except Attendance.DoesNotExist:
-          return HttpResponse('', status_code=400)
+          return HttpResponseBadRequest('')
         return JsonResponse(data)
       try:
         choice = int(choice)
       except ValueError:
-        return HttpResponse('', status_code=400)
+        return HttpResponseBadRequest('')
       start_time_choices = raid.get_start_time_choices()
       if choice < 0 or choice >= len(start_time_choices):
-        return HttpResponse('', status_code=400)
+        return HttpResponseBadRequest('')
       attendance, created = Attendance.objects.get_or_create(raid=raid, submitter=nickname, defaults={'start_time_choice': choice})
       if not created:
         attendance.start_time_choice = choice
