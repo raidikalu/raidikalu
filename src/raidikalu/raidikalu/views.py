@@ -4,8 +4,6 @@ import logging
 import re
 from calendar import timegm
 from datetime import timedelta, datetime
-from django.core.cache import cache
-from django.db.models.signals import post_save, post_delete
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
@@ -84,44 +82,6 @@ class RaidListView(TemplateView):
     for raid in context['raids']:
       raid.update_raid_context(self.request)
     return context
-
-
-class RaidSnippetView(TemplateView):
-  template_name = 'raidikalu/raid_snippet.html'
-  CACHE_TIMEOUT = 2 * 60 * 60
-
-  def dispatch(self, request, **kwargs):
-    raid_pk = self.kwargs.get('pk')
-    cache_key = 'raid_snippet_response_%s' % raid_pk
-    response = cache.get(cache_key)
-    if response:
-      return response
-    self.raid = get_object_or_404(Raid, pk=raid_pk)
-    response = super(RaidSnippetView, self).dispatch(request, **kwargs)
-    if hasattr(response, 'render') and callable(response.render):
-      response.add_post_render_callback(lambda r: cache.set(cache_key, r, self.CACHE_TIMEOUT))
-    else:
-      cache.set(cache_key, response, self.CACHE_TIMEOUT)
-    return response
-
-  def get_context_data(self, **kwargs):
-    context = super(RaidSnippetView, self).get_context_data(**kwargs)
-    self.raid.update_raid_context(self.request)
-    context['raid'] = self.raid
-    context['now'] = timezone.now()
-    return context
-
-def invalidate_raid_snippet_from_raid(instance, **kwargs):
-  cache_key = 'raid_snippet_response_%s' % instance.pk
-  cache.delete(cache_key)
-
-def invalidate_raid_snippet_from_attendance(instance, **kwargs):
-  cache_key = 'raid_snippet_response_%s' % instance.raid_id
-  cache.delete(cache_key)
-
-post_save.connect(invalidate_raid_snippet_from_raid, sender='raidikalu.Raid')
-post_save.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
-post_delete.connect(invalidate_raid_snippet_from_attendance, sender='raidikalu.Attendance')
 
 
 class RaidCreateView(TemplateView):
