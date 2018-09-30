@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fe413e8b7241006f6f0fd6a4db4ba7994e91ff23d903b53b4301a633616f97b9"
+            "sha256": "f5ad01e8673bbae083b247cfdb9e7cb406b7253f11765bfe1fb48bb0c46eb316"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -218,6 +218,20 @@
             ],
             "version": "==0.5.6"
         },
+        "psutil": {
+            "hashes": [
+                "sha256:0d8da7333549a998556c18eb2af3ce902c28d66ceb947505c008f91e9f988abd",
+                "sha256:1914bacbd2fc2af8f795daa44b9d2e0649a147460cfd21b1a70a124472f66d40",
+                "sha256:215d61a901e67b1a35e14c6aedef317f7fa7e6075a20c150fd11bd2c906d2c83",
+                "sha256:51057c03aea251ad6667c2bba259bc7ed3210222d3a74152c84e3ab06e1da0ba",
+                "sha256:5b6322b167a5ba0c5463b4d30dfd379cd4ce245a1162ebf8fc7ab5c5ffae4f3b",
+                "sha256:a890c3e490493f21da2817ffc92822693bc0d6bcac9999caa04ffce8dd4e7132",
+                "sha256:b34611280a2d0697f1c499e15e936d88109170194b390599c98bab8072a71f05",
+                "sha256:cea2557ee6a9faa2c100947637ded68414e12b851633c4ce26e0311b2a2ed539",
+                "sha256:d081707ef0081920533db30200a2d30d5c0ea9cf6afa7cf8881ae4516cc69c48"
+            ],
+            "version": "==5.4.7"
+        },
         "psycopg2": {
             "hashes": [
                 "sha256:04a5b2805c620ddecdff33e015631cc8d7ea8dd01e1fcc930bfe002fdc26b9e0",
@@ -278,6 +292,22 @@
             ],
             "version": "==2018.5"
         },
+        "pyyaml": {
+            "hashes": [
+                "sha256:3d7da3009c0f3e783b2c873687652d83b1bbfd5c88e9813fb7e5b03c0dd3108b",
+                "sha256:3ef3092145e9b70e3ddd2c7ad59bdd0252a94dfe3949721633e41344de00a6bf",
+                "sha256:40c71b8e076d0550b2e6380bada1f1cd1017b882f7e16f09a65be98e017f211a",
+                "sha256:558dd60b890ba8fd982e05941927a3911dc409a63dcb8b634feaa0cda69330d3",
+                "sha256:a7c28b45d9f99102fa092bb213aa12e0aaf9a6a1f5e395d36166639c1f96c3a1",
+                "sha256:aa7dd4a6a427aed7df6fb7f08a580d68d9b118d90310374716ae90b710280af1",
+                "sha256:bc558586e6045763782014934bfaf39d48b8ae85a2713117d16c39864085c613",
+                "sha256:d46d7982b62e0729ad0175a9bc7e10a566fc07b224d2c79fafb5e032727eaa04",
+                "sha256:d5eef459e30b09f5a098b9cea68bebfeb268697f78d647bd255a085371ac7f3f",
+                "sha256:e01d3203230e1786cd91ccfdc8f8454c8069c91bee3962ad93b87a4b2860f537",
+                "sha256:e170a9e6fcfd19021dd29845af83bb79236068bf5fd4df3327c1be18182b2531"
+            ],
+            "version": "==3.13"
+        },
         "raidikalu": {
             "editable": true,
             "path": "./src/raidikalu"
@@ -297,6 +327,22 @@
             ],
             "index": "pypi",
             "version": "==2.18.4"
+        },
+        "scout-apm": {
+            "hashes": [
+                "sha256:0c413fcc104a231668460c146d4dfcba553519aa569cd1976b3df19d20cdfb9f",
+                "sha256:1bc26b12cf6cb846ae9e75562e6e07ea73ba81c53455b6615f4ffd3c37b77d4b",
+                "sha256:3d0c8af8fcb320f8be884425d18dc3ffaba346fe3b4f62748ea7c86f2863852f",
+                "sha256:3d12cac7044986646d45a16587d6040e148a5140f0ff0a46559043249373b428",
+                "sha256:427e3e71fae96b11b7df518306a19c1e2041d8c47f8377fa9f29fd3259793a7d",
+                "sha256:8873c99494882cbe14710bdc5a0965ce48eea2e965e7c5f853d9e51d15ff287b",
+                "sha256:8f6c06470cbb688e20705b064d0f0fe9961786fefe4710b56a79d2ebe6b5bc0a",
+                "sha256:99ffb2b95f6d63f6e76f322971c311f3d9cb04db477ce393aacde95219e4234a",
+                "sha256:debf935aea6bd409336c2633169ba39aada00a12155dfe306e571e6f166fde7f"
+            ],
+            "index": "pypi",
+            "markers": "sys_platform == 'linux'",
+            "version": "==1.3.7"
         },
         "six": {
             "hashes": [

@@ -14,6 +14,14 @@ RAVEN_CONFIG = {
 
 GOOGLE_ANALYTICS_ID = os.environ.get('GOOGLE_ANALYTICS_ID', None)
 
+SCOUT_KEY = os.environ.get('SCOUT_KEY', '')
+if SCOUT_KEY:
+  SCOUT_MONITOR = True
+  SCOUT_NAME = 'raidikalu'
+  INSTALLED_APPS = [
+    'scout_apm.django',
+  ] + INSTALLED_APPS
+
 INSTALLED_APPS += [
   'raven.contrib.django.raven_compat',
 ]
