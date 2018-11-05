@@ -104,7 +104,7 @@ class Raid(TimestampedModel):
   RAID_BATTLE_DURATION = timedelta(minutes=45)
   RAID_DURATION = RAID_EGG_DURATION + RAID_BATTLE_DURATION
 
-  gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE)
+  gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE, unique=True)
   submitter = models.CharField(max_length=255, blank=True)
   data_source = models.ForeignKey(DataSource, on_delete=models.SET_NULL, null=True, blank=True)
   unverified_text = models.CharField(max_length=255, blank=True)

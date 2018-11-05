@@ -4,6 +4,7 @@ import logging
 import re
 from calendar import timegm
 from datetime import timedelta, datetime
+from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
@@ -19,6 +20,8 @@ from raidikalu.utils import get_nickname
 
 LOG = logging.getLogger(__name__)
 
+# This works between UTC 2001-09-09 01:46:40 and UTC 33658-09-27 01:46:40
+# outside of those it will overlap with seconds
 THRESHOLD_OF_LOOKING_A_LOT_LIKE_MILLISECONDS = 1000000000000
 
 
@@ -95,7 +98,11 @@ class RaidCreateView(TemplateView):
 
     gym_id = request.POST.get('gym', None)
     gym = get_object_or_404(Gym, pk=gym_id)
-    raid, created = Raid.objects.get_or_create(gym=gym)
+    try:
+      raid, created = Raid.objects.get_or_create(gym=gym)
+    except IntegrityError as e:
+      LOG.error(repr(e), exc_info=True)
+      return redirect('raidikalu.raid_list')
 
     if created:
       raid.submitter = request.session.get('nickname', None) or ''
@@ -258,7 +265,11 @@ class RaidReceiverView(View):
       return HttpResponse('OK')
 
     gym = Gym.objects.get(pogo_id=raid_data.get('gym_id'))
-    raid, created = Raid.objects.get_or_create(gym=gym)
+    try:
+      raid, created = Raid.objects.get_or_create(gym=gym)
+    except IntegrityError as e:
+      LOG.error(repr(e), exc_info=True)
+      return HttpResponse('OK')
 
     if created:
       raid.data_source = data_source
