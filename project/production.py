@@ -4,6 +4,8 @@ import re
 from project.settings import *
 
 
+SECURE_SSL_REDIRECT = True
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
