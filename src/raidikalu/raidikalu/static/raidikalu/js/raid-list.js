@@ -119,6 +119,9 @@ function initMessageListeners() {
     if (payload.event == 'attendance' && payload.data.submitter != NICKNAME) {
       attendanceUpdated(payload.data);
     }
+    else if (payload.event == 'raid') {
+      raidUpdated(payload.data);
+    }
 
     if (payload.data.raid) {
       try {
@@ -165,6 +168,16 @@ function attendanceUpdated(attendance) {
 
   timerElements = document.querySelectorAll('[data-time]');
   initAttendanceListeners(newRaidElement);
+
+}
+
+
+function raidUpdated(raid) {
+
+  if (document.title.indexOf('!') === -1) {
+    document.title = '! ' + document.title;
+    document.querySelector('.refresh-button-new-indicator').classList.add('active');
+  }
 
 }
 
