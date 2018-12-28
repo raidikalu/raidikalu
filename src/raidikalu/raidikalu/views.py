@@ -281,6 +281,14 @@ class RaidReceiverView(View):
     return HttpResponse('OK')
 
 
+class GymUuidsView(View):
+  def get(self, request, *args, **kwargs):
+    data_source_api_key = self.kwargs.get('api_key')
+    DataSource.objects.get(api_key=data_source_api_key)
+    gym_uuids = Gym.objects.all().values_list('pogo_id', flat=True)
+    return HttpResponse(','.join(gym_uuids))
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GymReceiverView(View):
   def post(self, request, *args, **kwargs):
