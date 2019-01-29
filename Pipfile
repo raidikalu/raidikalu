@@ -4,8 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-channels = "==2.1.3"
-channels_redis = "==2.3.0"
+channels = "==2.1.6"
 django = "==1.11.7"
 "dj-database-url" = "==0.4.2"
 "django-bmemcached" = "==0.2.3"
