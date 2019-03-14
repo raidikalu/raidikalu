@@ -289,6 +289,13 @@ class GymUuidsView(View):
     return HttpResponse(','.join(gym_uuids))
 
 
+class GymCoordinatesView(View):
+  def get(self, request, *args, **kwargs):
+    data = Gym.objects.filter(is_active=True).values_list('latitude', 'longitude')
+    data = '\n'.join(['%s,%s' % values for values in data])
+    return HttpResponse(data)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class GymReceiverView(View):
   def post(self, request, *args, **kwargs):
