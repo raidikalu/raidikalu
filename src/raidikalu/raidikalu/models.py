@@ -100,8 +100,10 @@ class RaidType(models.Model):
 
 
 class Raid(TimestampedModel):
-  RAID_EGG_DURATION = timedelta(hours=1)
-  RAID_BATTLE_DURATION = timedelta(minutes=45)
+  # RAID_EGG_DURATION = timedelta(hours=1)
+  # RAID_BATTLE_DURATION = timedelta(minutes=45)
+  RAID_EGG_DURATION = timedelta(minutes=15)
+  RAID_BATTLE_DURATION = timedelta(hours=1, minutes=30)
   RAID_DURATION = RAID_EGG_DURATION + RAID_BATTLE_DURATION
 
   gym = models.ForeignKey(Gym, related_name='raids', on_delete=models.CASCADE, unique=True)
