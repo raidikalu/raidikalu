@@ -24,7 +24,7 @@
           <div class="raid-name">{{ raid.gym.name }}</div>
         </label>
         <a class="raid-map-link" href="https://www.google.com/maps/search/?api=1&query={{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-map-marker"></i></a>
-        <a class="raid-directions-link" href="https://www.google.com/maps/dir/Current+Location/{{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-car"></i></a>
+        <a class="raid-directions-link" href="https://www.google.com/maps/dir/?api=1&destination={{ raid.gym.latitude|unlocalize }},{{ raid.gym.longitude|unlocalize }}" target="_blank" rel="noreferrer"><i class="fa fa-car"></i></a>
       </div>
       <div class="raid-extra">
         <div class="raid-details">
