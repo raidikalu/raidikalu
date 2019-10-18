@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 "asgi-redis" = "==1.4.3"
 channels = "==1.1.8"
-django = "==1.11.7"
+django = "==1.11.23"
 "dj-database-url" = "==0.4.2"
 "django-bmemcached" = "==0.2.3"
 "django-cors-headers" = "==2.1.0"
