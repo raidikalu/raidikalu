@@ -4,19 +4,20 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-channels = "==2.1.6"
-django = "==1.11.7"
+channels = "==2.2.0"
+django = "==1.11.29"
 "dj-database-url" = "==0.4.2"
 "django-bmemcached" = "==0.2.3"
 "django-cors-headers" = "==2.1.0"
+djangorestframework = "==3.11.0"
 gunicorn = "==19.7.1"
 hiredis = {version = "==0.2.0", sys_platform = "== 'linux'"}
 honcho = "==1.0.1"
-"psycopg2" = "==2.7.3.1"
+"psycopg2" = "==2.7.7"
 raven = "==6.2.1"
 requests = "==2.18.4"
 "scout-apm" = {version = "==1.3.7", sys_platform = "== 'linux'"}
-twisted = "==18.7.0"
+twisted = "==19.2.0"
 whitenoise = "==3.3.1"
 raidikalu = {path = "./src/raidikalu", editable = true}
 
@@ -24,4 +25,4 @@ raidikalu = {path = "./src/raidikalu", editable = true}
 "pypiwin32" = "==220"
 
 [requires]
-python_version = "3.6"
+python_version = "3"

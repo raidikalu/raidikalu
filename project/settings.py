@@ -18,6 +18,8 @@ INSTALLED_APPS = [
   'raidikalu',
 
   'corsheaders',
+  'rest_framework',
+  'rest_framework.authtoken',
 
   'django.contrib.admin',
   'django.contrib.auth',
@@ -150,6 +152,20 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
+
+
+#
+# Django Rest Framework
+#
+
+REST_FRAMEWORK = {
+  'DEFAULT_AUTHENTICATION_CLASSES': [
+    'rest_framework.authentication.TokenAuthentication',
+  ],
+  'DEFAULT_PERMISSION_CLASSES': [
+    'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+  ],
+}
 
 
 #

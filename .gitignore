@@ -1,5 +1,7 @@
 .ssh
 .env
+.vscode
+*.swp
 *.pyc
 *.egg-info
 database.db

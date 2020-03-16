@@ -13,8 +13,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views import View
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework import viewsets
 from raidikalu.messages import attendance_updated
 from raidikalu.models import InfoBox, Gym, RaidType, Raid, DataSource, RaidVote, Attendance
+from raidikalu.serializers import RaidTypeSerializer
 from raidikalu.utils import get_nickname
 
 
@@ -294,6 +296,7 @@ class GymCoordinatesView(View):
     data = Gym.objects.filter(is_active=True).values_list('latitude', 'longitude')
     data = '\n'.join(['%s,%s' % values for values in data])
     return HttpResponse(data)
+    return HttpResponse(','.join(gym_uuids))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -312,3 +315,8 @@ class GymReceiverView(View):
     })
 
     return HttpResponse('OK')
+
+
+class RaidTypeViewSet(viewsets.ReadOnlyModelViewSet):
+  queryset = RaidType.objects.all()
+  serializer_class = RaidTypeSerializer

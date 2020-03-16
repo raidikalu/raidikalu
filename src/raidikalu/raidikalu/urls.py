@@ -1,6 +1,11 @@
 
-from django.conf.urls import url
+from django.conf.urls import include, url
+from rest_framework import routers
 from raidikalu.views import RaidListView, RaidCreateView, RaidReceiverView, GymReceiverView, RaidJsonExportView, GymUuidsView, GymCoordinatesView
+from raidikalu.views import RaidTypeViewSet
+
+router = routers.DefaultRouter()
+router.register(r'raidtypes', RaidTypeViewSet, 'raidtype')
 
 
 urlpatterns = [
@@ -11,4 +16,5 @@ urlpatterns = [
   url('^api/1/raid-export/(?P<api_key>[^/]+)/$', RaidJsonExportView.as_view(), name='raidikalu.raid_export'),
   url('^api/1/gym-uuids/(?P<api_key>[^/]+)/$', GymUuidsView.as_view(), name='raidikalu.gym_uuids'),
   url('^api/1/gym-coordinates/$', GymCoordinatesView.as_view(), name='raidikalu.gym_coordinates'),
+  url('^api/1/', include(router.urls)),
 ]
