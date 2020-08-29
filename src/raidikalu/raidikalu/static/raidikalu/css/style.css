@@ -303,6 +303,7 @@ hr {
 }
 [data-tier="4"] .raid-tier {
   color: #b71c1c;
+  font-weight: bold;
 }
 [data-tier="3"] .raid-tier {
   color: #F57F17;

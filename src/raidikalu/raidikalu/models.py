@@ -92,8 +92,9 @@ class RaidType(models.Model):
       return '\u2605\u2605'
     if self.tier == 3:
       return '\u2605\u2605\u2605'
+    # Tier 4: mega tier
     if self.tier == 4:
-      return '\u2605\u2605\u2605\u2605'
+      return '\u00a7'
     if self.tier == 5:
       return '\u2605\u2605\u2605\u2605\u2605'
     return '\u2013'
@@ -181,8 +182,9 @@ class Raid(TimestampedModel):
       return '\u2605\u2605'
     if self.tier == 3:
       return '\u2605\u2605\u2605'
+    # Tier 4: mega tier
     if self.tier == 4:
-      return '\u2605\u2605\u2605\u2605'
+      return '\u00a7'
     if self.tier == 5:
       return '\u2605\u2605\u2605\u2605\u2605'
     return '\u2013'
